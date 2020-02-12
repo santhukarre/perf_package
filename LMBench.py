@@ -20,7 +20,7 @@ def run_bw_mem(size, oprtn):
     bytes_transferred = lmbench_op.split(" ")[0]
     ddr_bw = lmbench_op.split(" ")
 
-def insert_androbench_result(xindus_db_conn, run_id):
+def insert_lmbench_result(xindus_db_conn, run_id):
     global bytes_transferred, ddr_bw
     xindus_db_cursor = xindus_db_conn.cursor()
     sqlbw = "INSERT INTO LMBENCH_RESULT(RESULT_ID, BYTES_Transferred, DDR_BW) VALUES (2,'" +bytes_transferred+ "','" +ddr_bw+ "')"

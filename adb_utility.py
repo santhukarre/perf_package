@@ -1,6 +1,27 @@
 import subprocess
 import io
 
+def launch_xindusapp():
+    p = subprocess.Popen("adb root", stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+
+    p = subprocess.Popen("adb disable-verity", stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+
+    p = subprocess.Popen("adb remount", stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+
+    p = subprocess.Popen("adb push results.csv /data", stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+
+    p = subprocess.Popen("adb shell am start -n com.example.xindusstressapp/com.example.xindusstressapp.MainActivity", stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+
 def get_adb_device_id():
   p = subprocess.Popen("adb devices", stdout=subprocess.PIPE, shell=True)
   (output, err) = p.communicate()
