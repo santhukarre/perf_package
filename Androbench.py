@@ -3,12 +3,7 @@ from Run import insert_runid
 
 import datetime
 
-seq_read_result = "193.13 MB/s"
-seq_write_result = "51.23 MB/s"
-rand_read_result = "15.12 MB/s"
-sql_insert_result = "966.56 QPS"
-sql_update_result = "1264.67 QPS"
-sql_delete_result = "1568.0 QPS"
+
 
 def store_androbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -17,7 +12,7 @@ def store_androbench_result(xindus_db_conn, result_id_list):
     data = xindus_db_cursor.fetchall()
     print("Total number of rows is ", xindus_db_cursor.rowcount)
     file = open("results.csv", "w+")
-    file.write("Result id,Seq Read,Seq Write,Rand Read,SQL Insert,SQL Update,SQL Delete")
+    file.write("Result id,Seq Read,Seq Write,Rand Read,Rand Write,SQL Insert,SQL Update,SQL Delete")
     file.write("\n")
     for row in data:
        file.write(str(row[0]))
@@ -33,6 +28,8 @@ def store_androbench_result(xindus_db_conn, result_id_list):
        file.write(str(row[5]))
        file.write(",")
        file.write(str(row[6]))
+       file.write(",")
+       file.write(str(row[7]))
        file.write("\n")
 
 def get_androbench_result_id(xindus_db_conn):
@@ -52,11 +49,12 @@ def get_androbench_result_id(xindus_db_conn):
     return result_id
 
 def insert_androbench_result(xindus_db_conn, run_id):
-    global seq_read_result, seq_write_result, rand_read_result, sql_insert_result, sql_update_result, sql_delete_result
+    global seq_read_result, seq_write_result, rand_read_result, rand_write_result, sql_insert_result, sql_update_result, sql_delete_result
 
-    seq_read_result = seq_write_result.split(" ")[0]
+    seq_read_result = seq_read_result.split(" ")[0]
     seq_write_result = seq_write_result.split(" ")[0]
     rand_read_result = rand_read_result.split(" ")[0]
+    rand_write_result = rand_write_result.split(" ")[0]
     sql_insert_result = sql_insert_result.split(" ")[0]
     sql_update_result = sql_update_result.split(" ")[0]
     sql_delete_result = sql_delete_result.split(" ")[0]
@@ -71,15 +69,15 @@ def insert_androbench_result(xindus_db_conn, run_id):
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
 
-    androbench_sql = "INSERT INTO ANDROBENCH_RESULT(RESULT_ID, SEQ_READ, SEQ_WRITE, RAND_READ, SQL_INSERT, SQL_UPDATE, SQL_DELETE) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+    androbench_sql = "INSERT INTO ANDROBENCH_RESULT(RESULT_ID, SEQ_READ, SEQ_WRITE, RAND_READ, RAND_WRITE, SQL_INSERT, SQL_UPDATE, SQL_DELETE) VALUES (%s,%s,%s,%s,%s,%s,%s)"
     androbench_val = [
-        (result_id,seq_read_result, seq_write_result, rand_read_result, sql_insert_result, sql_update_result, sql_delete_result),
+        (result_id,seq_read_result, seq_write_result, rand_read_result, rand_write_result, sql_insert_result, sql_update_result, sql_delete_result),
     ]
     xindus_db_cursor.executemany(androbench_sql, androbench_val)
     xindus_db_conn.commit()
 
 def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
-    global seq_read_result, seq_write_result, rand_read_result, sql_insert_result, sql_update_result, sql_delete_result
+    global seq_read_result, seq_write_result, rand_read_result,rand_write_result, sql_insert_result, sql_update_result, sql_delete_result
 
     # Click on Results Button.
     seq_read_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.TextView[2]')
@@ -93,6 +91,7 @@ def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
     print('seq_read_results_element= ', seq_read_results_element.text)
     print('seq_write_results_element= ', seq_write_results_element.text)
     print('rand_read_results_element= ', rand_read_results_element.text)
+    print('rand_write_results_element= ', rand_write_results_element.text)
     print('sql_insert_results_element= ', sql_insert_results_element.text)
     print('sql_update_results_element= ', sql_update_results_element.text)
     print('sql_delete_results_element= ', sql_delete_results_element.text)

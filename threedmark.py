@@ -6,7 +6,7 @@ def run_3dmark(adb_device_id):
         "platformName": "android",
         "appPackage": "com.futuremark.dmandroid.application",
         "appActivity": "com.futuremark.flamenco.ui.splash.SplashPageActivity",
-        "noReset": False,
+        "noReset": True,
         "connectionRetryTimeout": 10000,
         "connectionRetryCount": 3,
         "automationName": "UiAutomator1",
