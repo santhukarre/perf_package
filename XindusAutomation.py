@@ -29,13 +29,13 @@ def run_all_perf_tools():
     # run_3dmark(adb_id)
     #insert_lmbench_result(xindus_db_conn, run_id)
     #insert_geekbench_result(xindus_db_conn, run_id)
-    #insert_antutu_result(xindus_db_conn, run_id)
+    insert_antutu_result(xindus_db_conn, run_id)
     update_run_end_time()
     insert_run_data(xindus_db_conn, run_id)
     #store_androbench_result(xindus_db_conn,[1,2])
     #store_lmbench_result(xindus_db_conn,run_id)
     #store_geekbench_result(xindus_db_conn, run_id)
-    #store_antutu_result(xindus_db_conn, run_id)
+    store_antutu_result(xindus_db_conn, run_id)
 
 def one_time_config():
     init_db()

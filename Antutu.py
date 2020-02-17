@@ -1,6 +1,13 @@
 from appium import webdriver
 from Run import insert_runid
 import time
+
+Antutu_total_score = ""
+Antutu_cpu_score = ""
+Antutu_mem_score = ""
+Antutu_gpu_score = ""
+Antutu_ux_score = ""
+
 def store_antutu_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
     sql_read = "select * from ANTUTU_RESULT"
@@ -23,10 +30,10 @@ def store_antutu_result(xindus_db_conn, result_id_list):
        file.write("\n")
 
 def get_antutu_result_id(xindus_db_conn):
-    xindus_db_cursor = xindus_db_conn.cursor()
+    xindus_db_cursor = xindus_db_conn.cursor(  )
     sql_read = "select MAX(RESULT_ID) from ANTUTU_RESULT"
     xindus_db_cursor.execute(sql_read)
-    data = xindus_db_cursor.fetchall()
+    data = xindus_db_cursor.fetchall( )
     print("Total number of rows is ", xindus_db_cursor.rowcount)
     for row in data:
         result_id = row[0]
@@ -41,9 +48,7 @@ def get_antutu_result_id(xindus_db_conn):
 
 
 def insert_antutu_result(xindus_db_conn, run_id):
-    global Antutu_total_score,Antutu_cpu_score,Antutu_memory_score, Antutu_ux_score
-
-
+    global Antutu_total_score,Antutu_cpu_score, Antutu_gpu_score,Antutu_memory_score, Antutu_ux_score
 
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_antutu_result_id(xindus_db_conn)
@@ -64,6 +69,7 @@ def insert_antutu_result(xindus_db_conn, run_id):
 
 
 def run_antutu(adb_id,xindus_db_conn, run_id):
+    global Antutu_total_score,Antutu_cpu_score, Antutu_gpu_score,Antutu_memory_score, Antutu_ux_score
     print("Running Antutu on device with adb_id =", adb_id)
     desired_cap = {
         "deviceName": adb_id,
@@ -71,6 +77,7 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
         "appPackage": "com.antutu.ABenchMark",
         "appActivity": "com.antutu.ABenchMark.ABenchMarkStart",
         "noReset": True,
+        "newCommandTimeout":800000,
         "automationName": "UiAutomator1"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
@@ -80,20 +87,34 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
     print('start')
     #Wait for Test Completion
-    appium_web_driver.implicitly_wait(1600)
-    antutu_total_score = appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_bg').click()
+    time.sleep(720)
+    #appium_web_driver.implicitly_wait(60)
+    #appium_web_driver.implicitly_wait(10)
+    antutu_total_score_element = appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/textViewTotalScore')
+    Antutu_total_score = antutu_total_score_element.text
+    print('Antutu Total Score :', Antutu_total_score)
     appium_web_driver.implicitly_wait(10)
-    print('Antutu Total Score :', antutu_total_score.text)
-    #appium_web_driver.implicitly_wait(10)
-    #antutu_cpu_score = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[1]/android.view.ViewGroup/android.widget.TextView[1]')
+
+    antutu_cpu_score_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[1]/android.view.ViewGroup/android.widget.TextView[1]')
     #antutu_cpu_score.click()
-    #print('Antutu CPU Score :', antutu_cpu_score.text)
-    #appium_web_driver.implicitly_wait(10)
-    #antutu_memory_score = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[2]/android.view.ViewGroup/android.widget.TextView[1]')
+    Antutu_cpu_score = antutu_cpu_score_element.text
+    print('Antutu CPU Score :', Antutu_cpu_score)
+    appium_web_driver.implicitly_wait(10)
+
+    antutu_gpu_score_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[2]/android.view.ViewGroup/android.widget.TextView[1]')
+    Antutu_gpu_score = antutu_gpu_score_element.text
+    #antutu_gpu_score.click()
+    print('Antutu GPU Score :', Antutu_gpu_score)
+
+    appium_web_driver.implicitly_wait(10)
+    antutu_memory_score_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[3]/android.view.ViewGroup/android.widget.TextView[1]')
     #antutu_memory_score.click()
-    #print('Antutu Memory Score :', antutu_memory_score.text)
-    #appium_web_driver.implicitly_wait(10)
-    #antutu_ux_score = appium_web_driver.find_element_by_xpath('	/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[4]/android.view.ViewGroup/android.widget.TextView[1]')
+    Antutu_mem_score = antutu_memory_score_element.text
+    print('Antutu Memory Score :', Antutu_memory_score)
+
+    appium_web_driver.implicitly_wait(10)
+    antutu_ux_score_element = appium_web_driver.find_element_by_xpath('	/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[4]/android.view.ViewGroup/android.widget.TextView[1]')
     #antutu_ux_score.click()
-    #print('Antutu UX Score :', antutu_ux_score.text)
-    # insert_antutu_result(xindus_db_conn, run_id)
+    Antutu_ux_score = antutu_ux_score_element.text
+    print('Antutu UX Score :', Antutu_ux_score)
+    insert_antutu_result(xindus_db_conn, run_id)
