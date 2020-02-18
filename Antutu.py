@@ -60,9 +60,9 @@ def insert_antutu_result(xindus_db_conn, run_id):
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
 
-    antutu_sql = "INSERT INTO ANTUTU_RESULT(RESULT_ID,ANTUTU_TOTAL_SCORE,ANTUTU_CPU_SCORE,ANTUTU_MEMORY_SCORE,ANTUTU_UX_SCORE) VALUES (%s,%s,%s,%s,%s)"
+    antutu_sql = "INSERT INTO ANTUTU_RESULT(RESULT_ID,ANTUTU_TOTAL_SCORE,ANTUTU_CPU_SCORE,ANTUTU_GPU_SCORE,ANTUTU_MEMORY_SCORE,ANTUTU_UX_SCORE) VALUES (%s,%s,%s,%s,%s,%s)"
     antutu_val = [
-        (result_id,Antutu_total_score,Antutu_cpu_score,Antutu_memory_score,Antutu_ux_score),
+        (result_id,Antutu_total_score,Antutu_cpu_score,Antutu_gpu_score,Antutu_memory_score,Antutu_ux_score),
     ]
     xindus_db_cursor.executemany(antutu_sql, antutu_val)
     xindus_db_conn.commit()
@@ -81,11 +81,8 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
         "automationName": "UiAutomator1"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
-    print('host successful')
     appium_web_driver.implicitly_wait(30)
-    print('wait time')
     appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
-    print('start')
     #Wait for Test Completion
     time.sleep(720)
     #appium_web_driver.implicitly_wait(60)

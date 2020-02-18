@@ -1,9 +1,23 @@
 from appium import webdriver
 from Run import insert_runid
-
+import time
 import datetime
+seq_read_results=""
+seq_write_results=""
+rand_read_results=""
+rand_write_results=""
+sql_insert_results=""
+sql_update_results=""
+sql_delete_results=""
 
-
+def wait_for_element(appium_web_driver, secs, element_id):
+   each_iteration_sleep = 50
+   iteration = (int)(secs/each_iteration_sleep)
+   for i in range(1, iteration):
+        appium_web_driver.implicitly_wait(secs)
+        time.sleep(5)
+   # Click on Cancel Button for 'Do you want to send results to server for research purpose'
+   appium_web_driver.find_element_by_id(element_id).click()
 
 def store_androbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -59,6 +73,14 @@ def insert_androbench_result(xindus_db_conn, run_id):
     sql_update_result = sql_update_result.split(" ")[0]
     sql_delete_result = sql_delete_result.split(" ")[0]
 
+    print('seq_read_result = ',seq_read_result)
+    print('seq_write_result = ', seq_write_result)
+    print('rand_read_result = ', rand_read_result)
+    print('rand_write_result = ', rand_write_result)
+    print('sql_insert_result = ', sql_insert_result)
+    print('sql_update_result = ', sql_update_result)
+    print('sql_delete_result = ', sql_delete_result)
+	
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_androbench_result_id(xindus_db_conn)
 
@@ -88,13 +110,16 @@ def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
     sql_update_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[6]/android.widget.LinearLayout/android.widget.TextView[2]')
     sql_delete_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[7]/android.widget.LinearLayout/android.widget.TextView[2]')
 
-    print('seq_read_results_element= ', seq_read_results_element.text)
-    print('seq_write_results_element= ', seq_write_results_element.text)
-    print('rand_read_results_element= ', rand_read_results_element.text)
-    print('rand_write_results_element= ', rand_write_results_element.text)
-    print('sql_insert_results_element= ', sql_insert_results_element.text)
-    print('sql_update_results_element= ', sql_update_results_element.text)
-    print('sql_delete_results_element= ', sql_delete_results_element.text)
+
+    seq_read_result = seq_read_results_element.text
+    seq_write_result = seq_write_results_element.text
+    rand_read_result = rand_read_results_element.text
+    rand_write_result = rand_write_results_element.text
+    sql_insert_result = sql_insert_results_element.text
+    sql_update_result = sql_update_results_element.text
+    sql_delete_result = sql_delete_results_element.text
+
+
     insert_androbench_result(xindus_db_conn, run_id)
 
 def run_androbench(adb_id, xindus_db_conn, run_id):
@@ -104,7 +129,7 @@ def run_androbench(adb_id, xindus_db_conn, run_id):
         "platformName": "android",
         "appPackage": "com.andromeda.androbench2",
         "appActivity": "main",
-        "automationName": "UiAutomator1"
+        "automationName": "UiAutomator2"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
     newVersionDevice = False
@@ -117,10 +142,6 @@ def run_androbench(adb_id, xindus_db_conn, run_id):
         warning_btn = appium_web_driver.find_element_by_id('android:id/button1')
         warning_btn.click()
 
-    #    appium_web_driver.implicitly_wait(30)
-#    appium_web_driver.find_element_by_id('com.android.permissioncontroller:id/continue_button').click();
-#    appium_web_driver.implicitly_wait(30)
-#    appium_web_driver.find_element_by_id('android:id/button1').click();
     appium_web_driver.implicitly_wait(30)
     # on Androbench Run All Benchmarks Button.
 
@@ -129,12 +150,12 @@ def run_androbench(adb_id, xindus_db_conn, run_id):
     appium_web_driver.implicitly_wait(30)
 
     # Click on Yes Button.
-    appium_web_driver.find_element_by_id('android:id/button1').click();
+    appium_web_driver.find_element_by_id('android:id/button1').click()
 
-    appium_web_driver.implicitly_wait(120)
+    #appium_web_driver.implicitly_wait(140)
 
+    wait_for_element(appium_web_driver, 240, 'android:id/button2')
     # Click on Cancel Button for 'Do you want to send results to server for research purpose'
-    appium_web_driver.find_element_by_id('android:id/button2').click();
 
     # Click on Results Button.
     results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.TabWidget/android.widget.LinearLayout[2]')
