@@ -67,6 +67,33 @@ def insert_antutu_result(xindus_db_conn, run_id):
     xindus_db_cursor.executemany(antutu_sql, antutu_val)
     xindus_db_conn.commit()
 
+def is_element_found(appium_web_driver, sec, element_id):
+    try:
+        print("sleeping for ", sec, " seconds to find the element")
+        appium_web_driver.implicitly_wait(sec)
+        found_element_id = appium_web_driver.find_element_by_id(element_id)
+        return True
+    except:
+        print("exception occured")
+        return False
+
+found_element_id = ""
+def wait_for_element(appium_web_driver, secs, element_id):
+   global  found_element_id
+   each_iteration_sleep = 50
+   iterations = (int)(secs/each_iteration_sleep)
+   print("Total iterations  = ", iterations)
+   for i in range(1, iterations):
+        print("iteration no. = ", i )
+        element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
+        if(element_found == True):
+            global  found_element_id
+            found_element_id = appium_web_driver.find_element_by_id(element_id)
+            break
+        if(element_found == False):
+            print("Sleeping explicilty for 5 seconds")
+            time.sleep(5)
+   return found_element_id
 
 def run_antutu(adb_id,xindus_db_conn, run_id):
     global Antutu_total_score,Antutu_cpu_score, Antutu_gpu_score,Antutu_memory_score, Antutu_ux_score
@@ -84,10 +111,7 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     appium_web_driver.implicitly_wait(30)
     appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
     #Wait for Test Completion
-    time.sleep(720)
-    #appium_web_driver.implicitly_wait(60)
-    #appium_web_driver.implicitly_wait(10)
-    antutu_total_score_element = appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/textViewTotalScore')
+    antutu_total_score_element=wait_for_element(appium_web_driver,800,'com.antutu.ABenchMark:id/textViewTotalScore')
     Antutu_total_score = antutu_total_score_element.text
     print('Antutu Total Score :', Antutu_total_score)
     appium_web_driver.implicitly_wait(10)
