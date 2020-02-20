@@ -1,5 +1,5 @@
 from appium import webdriver
-from Run import insert_runid
+from Run import wait_for_element,pull_screenshots
 import time
 
 Antutu_total_score = ""
@@ -67,33 +67,6 @@ def insert_antutu_result(xindus_db_conn, run_id):
     xindus_db_cursor.executemany(antutu_sql, antutu_val)
     xindus_db_conn.commit()
 
-def is_element_found(appium_web_driver, sec, element_id):
-    try:
-        print("sleeping for ", sec, " seconds to find the element")
-        appium_web_driver.implicitly_wait(sec)
-        found_element_id = appium_web_driver.find_element_by_id(element_id)
-        return True
-    except:
-        print("exception occured")
-        return False
-
-found_element_id = ""
-def wait_for_element(appium_web_driver, secs, element_id):
-   global  found_element_id
-   each_iteration_sleep = 50
-   iterations = (int)(secs/each_iteration_sleep)
-   print("Total iterations  = ", iterations)
-   for i in range(1, iterations):
-        print("iteration no. = ", i )
-        element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
-        if(element_found == True):
-            global  found_element_id
-            found_element_id = appium_web_driver.find_element_by_id(element_id)
-            break
-        if(element_found == False):
-            print("Sleeping explicilty for 5 seconds")
-            time.sleep(5)
-   return found_element_id
 
 def run_antutu(adb_id,xindus_db_conn, run_id):
     global Antutu_total_score,Antutu_cpu_score, Antutu_gpu_score,Antutu_memory_score, Antutu_ux_score
@@ -130,7 +103,7 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     appium_web_driver.implicitly_wait(10)
     antutu_memory_score_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/androidx.recyclerview.widget.RecyclerView/android.widget.FrameLayout[3]/android.view.ViewGroup/android.widget.TextView[1]')
     #antutu_memory_score.click()
-    Antutu_mem_score = antutu_memory_score_element.text
+    Antutu_memory_score = antutu_memory_score_element.text
     print('Antutu Memory Score :', Antutu_memory_score)
 
     appium_web_driver.implicitly_wait(10)
@@ -139,3 +112,5 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     Antutu_ux_score = antutu_ux_score_element.text
     print('Antutu UX Score :', Antutu_ux_score)
     insert_antutu_result(xindus_db_conn, run_id)
+    store_antutu_result(xindus_db_conn, [1, 2])
+    pull_screenshots(run_id, "Antutu","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")

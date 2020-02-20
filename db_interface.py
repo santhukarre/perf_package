@@ -4,8 +4,7 @@ def get_xindus_db_conn():
   xindus_db_con = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="XINDUS",
-    port = 3307,
+    passwd="srivani123",
     database="Xindus_DB"
   )
   return xindus_db_con
@@ -14,8 +13,7 @@ def create_tables():
   xindus_db_con = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="XINDUS",
-    port=3307,
+    passwd="srivani123",
     database="Xindus_DB"
   )
   xindus_db_cursor = xindus_db_con.cursor()
@@ -31,7 +29,7 @@ def create_tables():
   xindus_db_cursor.execute("Create Table  IF NOT EXISTS ANTUTU_RESULT(RESULT_ID INT,ANTUTU_TOTAL_SCORE INT,ANTUTU_CPU_SCORE INT,ANTUTU_GPU_SCORE INT,ANTUTU_MEMORY_SCORE INT,ANTUTU_UX_SCORE INT)")
   xindus_db_cursor.execute("Create Table  IF NOT EXISTS GEEKBENCH_RESULT(RESULT_ID INT,SINGLE_CORE_ELEMENT INT,MULTI_CORE_ELEMENT INT,OPENCL_SCORE_ELEMENT INT)")
   xindus_db_cursor.execute("Create Table  IF NOT EXISTS LMBENCH_RESULT(RESULT_ID INT, BYTES_Transferred INT,DDR_BW INT)")
-  xindus_db_cursor.execute("Create Table  IF NOT EXISTS THREEMARK_RESULT(RESULT_ID INT,SLINGOPENGL_OVERALL INT, SLINGOPENGL_PHYSICS INT, SLINGOPENGL_GRAPHICS INT, SLING_OVERALL INT, SLING_GRAPHICS INT, SLING_PHYSICS INT, SLINGSHOT_OVERALL INT, SLINGSHOT_GRAPHICS INT, SLINGSHOT_PHYSICS INT, API_OPENGL INT, API_VULKAN INT)")
+  xindus_db_cursor.execute("Create Table  IF NOT EXISTS THREEDMARK_RESULT(RESULT_ID INT,SLINGOPENGL_OVERALL VARCHAR(255), SLINGOPENGL_GRAPHICS VARCHAR(255), SLINGOPENGL_PHYSICS VARCHAR(255), SLING_OVERALL VARCHAR(255), SLING_GRAPHICS VARCHAR(255), SLING_PHYSICS VARCHAR(255),SLINGSHOT_OVERALL VARCHAR(255),SLINGSHOT_GRAPHICS VARCHAR(255),SLINGSHOT_PHYSICS VARCHAR(255),API_OPENGL VARCHAR(255),API_VULKAN VARCHAR(255))")
   xindus_db_con.commit()
   return xindus_db_con
 
@@ -70,8 +68,7 @@ def init_db():
   connection = mysql.connector.connect(
     host="localhost",
     user="root",
-    passwd="XINDUS",
-    port = 3307,
+    passwd="srivani123",
   )
   xindus_db_cursor = connection.cursor()
   xindus_db_cursor.execute("Create database IF NOT EXISTS Xindus_DB ")

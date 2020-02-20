@@ -1,10 +1,41 @@
+import subprocess
 import datetime
+import time
 
 START_DATE = ""
 START_TIME = ""
 END_DATE = ""
 END_TIME = ""
 run_id = ""
+
+def is_element_found(appium_web_driver, sec, element_id):
+    try:
+        print("sleeping for ", sec, " seconds to find the element")
+        appium_web_driver.implicitly_wait(sec)
+        found_element_id = appium_web_driver.find_element_by_id(element_id)
+        return True
+    except:
+        print("exception occured")
+        return False
+
+found_element_id = ""
+def wait_for_element(appium_web_driver, secs, element_id):
+   global  found_element_id
+   each_iteration_sleep = 50
+   iterations = (int)(secs/each_iteration_sleep)
+   print("Total iterations  = ", iterations)
+   for i in range(1, iterations):
+        print("iteration no. = ", i )
+        element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
+        if(element_found == True):
+            global  found_element_id
+            found_element_id = appium_web_driver.find_element_by_id(element_id)
+            break
+        if(element_found == False):
+            print("Sleeping explicilty for 5 seconds")
+            time.sleep(5)
+   return found_element_id
+
 def update_run_start_time():
     global  START_DATE, START_TIME
     START_DATE = datetime.datetime.now().date()
@@ -62,3 +93,14 @@ def insert_run_data(xindus_db_conn, run_id):
     print("run_data_sql = ", run_data_sql)
     xindus_db_cursor.execute(run_data_sql)
     xindus_db_conn.commit()
+
+def pull_screenshots(run_id, fileName, dest):
+    screenshot_cmd = "adb shell screencap -p /sdcard/" + fileName + "_" + str(run_id) + ".png"
+    p = subprocess.Popen(screenshot_cmd, stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+    dest = dest.replace("\\", "\\\\")
+    pull_cmd = "adb pull -p -a  /sdcard/" + fileName + "_" + str(run_id) + ".png " + dest
+    p = subprocess.Popen(pull_cmd,stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()

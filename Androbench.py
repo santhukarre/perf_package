@@ -1,23 +1,13 @@
 from appium import webdriver
-from Run import insert_runid
-import time
-import datetime
-seq_read_results=""
-seq_write_results=""
-rand_read_results=""
-rand_write_results=""
-sql_insert_results=""
-sql_update_results=""
-sql_delete_results=""
+from Run import wait_for_element,pull_screenshots
 
-def wait_for_element(appium_web_driver, secs, element_id):
-   each_iteration_sleep = 50
-   iteration = (int)(secs/each_iteration_sleep)
-   for i in range(1, iteration):
-        appium_web_driver.implicitly_wait(secs)
-        time.sleep(5)
-   # Click on Cancel Button for 'Do you want to send results to server for research purpose'
-   appium_web_driver.find_element_by_id(element_id).click()
+seq_read_result=""
+seq_write_result=""
+rand_read_result=""
+rand_write_result=""
+sql_insert_result=""
+sql_update_result=""
+sql_delete_result=""
 
 def store_androbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -63,23 +53,23 @@ def get_androbench_result_id(xindus_db_conn):
     return result_id
 
 def insert_androbench_result(xindus_db_conn, run_id):
-    global seq_read_result, seq_write_result, rand_read_result, rand_write_result, sql_insert_result, sql_update_result, sql_delete_result
+    global seq_read_results, seq_write_results, rand_read_results, rand_write_results, sql_insert_results, sql_update_results, sql_delete_results
 
-    seq_read_result = seq_read_result.split(" ")[0]
-    seq_write_result = seq_write_result.split(" ")[0]
-    rand_read_result = rand_read_result.split(" ")[0]
-    rand_write_result = rand_write_result.split(" ")[0]
-    sql_insert_result = sql_insert_result.split(" ")[0]
-    sql_update_result = sql_update_result.split(" ")[0]
-    sql_delete_result = sql_delete_result.split(" ")[0]
+    seq_read_results = seq_read_result.split(" ")[0]
+    seq_write_results = seq_write_result.split(" ")[0]
+    rand_read_results= rand_read_result.split(" ")[0]
+    rand_write_results = rand_write_result.split(" ")[0]
+    sql_insert_results = sql_insert_result.split(" ")[0]
+    sql_update_results = sql_update_result.split(" ")[0]
+    sql_delete_results = sql_delete_result.split(" ")[0]
 
-    print('seq_read_result = ',seq_read_result)
-    print('seq_write_result = ', seq_write_result)
-    print('rand_read_result = ', rand_read_result)
-    print('rand_write_result = ', rand_write_result)
-    print('sql_insert_result = ', sql_insert_result)
-    print('sql_update_result = ', sql_update_result)
-    print('sql_delete_result = ', sql_delete_result)
+    print('seq_read_result = ',seq_read_results)
+    print('seq_write_result = ', seq_write_results)
+    print('rand_read_result = ', rand_read_results)
+    print('rand_write_result = ', rand_write_results)
+    print('sql_insert_result = ', sql_insert_results)
+    print('sql_update_result = ', sql_update_results)
+    print('sql_delete_result = ', sql_delete_results)
 	
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_androbench_result_id(xindus_db_conn)
@@ -91,7 +81,7 @@ def insert_androbench_result(xindus_db_conn, run_id):
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
 
-    androbench_sql = "INSERT INTO ANDROBENCH_RESULT(RESULT_ID, SEQ_READ, SEQ_WRITE, RAND_READ, RAND_WRITE, SQL_INSERT, SQL_UPDATE, SQL_DELETE) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+    androbench_sql = "INSERT INTO ANDROBENCH_RESULT(RESULT_ID, SEQ_READ, SEQ_WRITE, RAND_READ, RAND_WRITE, SQL_INSERT, SQL_UPDATE, SQL_DELETE) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
     androbench_val = [
         (result_id,seq_read_result, seq_write_result, rand_read_result, rand_write_result, sql_insert_result, sql_update_result, sql_delete_result),
     ]
@@ -129,7 +119,7 @@ def run_androbench(adb_id, xindus_db_conn, run_id):
         "platformName": "android",
         "appPackage": "com.andromeda.androbench2",
         "appActivity": "main",
-        "automationName": "UiAutomator2"
+        "automationName": "uiautomator1"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
     newVersionDevice = False
@@ -142,24 +132,28 @@ def run_androbench(adb_id, xindus_db_conn, run_id):
         warning_btn = appium_web_driver.find_element_by_id('android:id/button1')
         warning_btn.click()
 
-    appium_web_driver.implicitly_wait(30)
+    appium_web_driver.implicitly_wait(10)
     # on Androbench Run All Benchmarks Button.
 
-    appium_web_driver.find_element_by_id('com.andromeda.androbench2:id/btnStartingBenchmarking').click();
+    appium_web_driver.find_element_by_id('com.andromeda.androbench2:id/btnStartingBenchmarking').click()
 
-    appium_web_driver.implicitly_wait(30)
+    appium_web_driver.implicitly_wait(10)
 
     # Click on Yes Button.
     appium_web_driver.find_element_by_id('android:id/button1').click()
 
-    #appium_web_driver.implicitly_wait(140)
-
-    wait_for_element(appium_web_driver, 240, 'android:id/button2')
     # Click on Cancel Button for 'Do you want to send results to server for research purpose'
+    send_results_element = wait_for_element(appium_web_driver,150,'android:id/button2')
+    send_results_element.click()
 
     # Click on Results Button.
-    results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.TabWidget/android.widget.LinearLayout[2]')
-    results_element.click()
+    #appium_web_driver.implicitly_wait(10)
+    #results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.TabWidget/android.widget.LinearLayout[2]')
+    #results_element.click()
     #Duration = END_TIME - START_TIME
     #print(Duration)
+
     get_androdben_results(appium_web_driver, xindus_db_conn, run_id)
+    insert_androbench_result(xindus_db_conn, run_id)
+    store_androbench_result(xindus_db_conn, [1, 2])
+    pull_screenshots(run_id, "Androbench", "C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
