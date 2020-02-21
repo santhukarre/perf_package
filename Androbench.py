@@ -1,5 +1,7 @@
 from appium import webdriver
-from Run import wait_for_element,pull_screenshots
+from Run import wait_for_element,pull_screenshots, report_file_name
+import pandas as pd
+from vincent.colors import brews
 
 seq_read_result=""
 seq_write_result=""
@@ -8,6 +10,50 @@ rand_write_result=""
 sql_insert_result=""
 sql_update_result=""
 sql_delete_result=""
+
+def generateAndrobenchReport(xindus_db_conn):
+    mycursor = xindus_db_conn.cursor()
+    sql_read = "select * from ANDROBENCH_RESULT"
+    mycursor.execute(sql_read)
+    data = mycursor.fetchall()
+    print("Total number of rows is ", mycursor.rowcount)
+    i = 0
+    iterations = []
+    iterations_names = []
+    for row in data:
+        iteration={'seq_read': row[1], 'seq_write': row[2], 'rand_read': row[3], 'rand_write': row[4], 'sql_insert': row[5],'sql_update': row[6],'sql_delete': row[7]}
+        iterations.append(iteration)
+        iterations_names.append('iteration '+ str(i))
+        i = i +1
+    data = iterations
+    index = iterations_names
+    # Create a Pandas dataframe from the data.
+    df = pd.DataFrame(data,index=index)
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    sheet_name = 'Sheet1'
+    writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name=sheet_name)
+    # Access the XlsxWriter workbook and worksheet objects from the dataframe.
+    workbook = writer.book
+    worksheet = writer.sheets[sheet_name]
+    # Create a chart object.
+    chart = workbook.add_chart({'type': 'column'})
+    # Configure the series of the chart from the dataframedata.
+    for col_num in range(1, len(iterations) + 1):
+        print("col_num ", col_num)
+        chart.add_series({
+            'name':       ['Sheet1', 0, col_num],
+            'categories': ['Sheet1', 1, 0, i, 0],
+            'values':     ['Sheet1', 1, col_num, i, col_num],
+            'fill':       {'color': brews['Set1'][col_num - 1]},
+            'overlap':-10,})
+    # Configure the chart axes.
+    chart.set_x_axis({'name': 'Iterations'})
+    chart.set_y_axis({'name': 'Score', 'major_gridlines': {'visible': False}})
+    # Insert the chart into the worksheet.
+    worksheet.insert_chart('H2', chart)
+    # Close the Pandas Excel writer and output the Excel file.
+    writer.save()
 
 def store_androbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -109,9 +155,6 @@ def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
     sql_update_result = sql_update_results_element.text
     sql_delete_result = sql_delete_results_element.text
 
-
-    insert_androbench_result(xindus_db_conn, run_id)
-
 def run_androbench(adb_id, xindus_db_conn, run_id):
     print("Running Androbench on device with adb_id =", adb_id)
     desired_cap = {
@@ -157,3 +200,4 @@ def run_androbench(adb_id, xindus_db_conn, run_id):
     insert_androbench_result(xindus_db_conn, run_id)
     store_androbench_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "Androbench", "C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    generateAndrobenchReport(xindus_db_conn)

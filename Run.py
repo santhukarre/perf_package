@@ -7,6 +7,7 @@ START_TIME = ""
 END_DATE = ""
 END_TIME = ""
 run_id = ""
+report_file_name = "Xindus_PerfReport.xlsx"
 
 def is_element_found(appium_web_driver, sec, element_id):
     try:
