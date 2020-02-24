@@ -17,16 +17,19 @@ def run_all_perf_tools():
     xindus_db_conn = get_xindus_db_conn()
     run_id = get_run_id(xindus_db_conn)
     print("Device adb_id = ", adb_id, "run_id = ", run_id);
+    
     update_run_start_time()
-    #insert_runid(xindus_db_conn,run_id)
-    #run_androbench(adb_id, xindus_db_conn, run_id)
-    #run_geekbench(adb_id,xindus_db_conn, run_id)
-    #run_antutu(adb_id,xindus_db_conn, run_id)
-    #run_lmbench(1024, 'rd' , xindus_db_conn, run_id)
-    #run_3dmark(adb_id,xindus_db_conn, run_id)
-
-    #update_run_end_time()
-    #insert_run_data(xindus_db_conn, run_id)
+    insert_runid(xindus_db_conn,run_id)
+    
+    run_androbench(adb_id, xindus_db_conn, run_id)
+    run_geekbench(adb_id,xindus_db_conn, run_id)
+    run_antutu(adb_id,xindus_db_conn, run_id)
+    run_lmbench(1024, 'rd' , xindus_db_conn, run_id)
+    run_3dmark(adb_id,xindus_db_conn, run_id)
+    
+    update_run_end_time()
+    insert_run_data(xindus_db_conn, run_id)
+    
     generateAndrobenchReport(xindus_db_conn)
     sendReportThroughMail()
 
@@ -34,8 +37,8 @@ def one_time_config():
     init_db()
 
 def main():
-    #one_time_config()
+    one_time_config()
     run_all_perf_tools()
-    #launch_xindusapp()
+    launch_xindusapp()
 
 main()
