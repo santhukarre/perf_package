@@ -155,7 +155,7 @@ def insert_threedmark_result(xindus_db_conn, run_id):
     ]
     xindus_db_cursor.executemany(threedmark_sql,threedmark_val)
     xindus_db_conn.commit()
-def run_3dmark(adb_id,xindus_db_conn, run_id):
+def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     global SlingopenGL_overall,SlingopenGL_physics,SlingopenGL_graphics,Sling_overall,Sling_graphics,Sling_physics,Slingshot_overall,Slingshot_graphics,Slingshot_physics,API_OPENGL,API_VULKAN
     print("Running Threedmark on device with adb_id =", adb_id)
     desired_cap = {
@@ -242,7 +242,7 @@ def run_3dmark(adb_id,xindus_db_conn, run_id):
 
     insert_threedmark_result(xindus_db_conn, run_id)
     store_threedmark_result(xindus_db_conn, [1, 2])
-    pull_screenshots(run_id, "3dmark_API","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    pull_screenshots(run_id, "3dmark_API",screenShotsPath)
     generateThreeDmarkReport(xindus_db_conn)
 
 

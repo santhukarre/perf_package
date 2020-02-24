@@ -115,7 +115,7 @@ def insert_antutu_result(xindus_db_conn, run_id):
     xindus_db_conn.commit()
 
 
-def run_antutu(adb_id,xindus_db_conn, run_id):
+def run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath):
     global Antutu_total_score,Antutu_cpu_score, Antutu_gpu_score,Antutu_memory_score, Antutu_ux_score
     print("Running Antutu on device with adb_id =", adb_id)
     desired_cap = {
@@ -163,5 +163,5 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     print('Antutu UX Score :', Antutu_ux_score)
     insert_antutu_result(xindus_db_conn, run_id)
     store_antutu_result(xindus_db_conn, [1, 2])
-    pull_screenshots(run_id, "Antutu","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    pull_screenshots(run_id, "Antutu",screenShotsPath)
     generateAntutuReport(xindus_db_conn)

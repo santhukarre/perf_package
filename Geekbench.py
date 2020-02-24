@@ -137,7 +137,7 @@ def insert_geekbench_result(xindus_db_conn, run_id):
     xindus_db_cursor.executemany(geekbench_sql,geekbench_val)
     xindus_db_conn.commit()
 
-def run_geekbench(adb_id,xindus_db_conn, run_id):
+def run_geekbench(adb_id,xindus_db_conn, run_id, screenShotsPath):
     global Single_core_element,Multi_core_element,Opencl_score_element
     print("Running Geekbench on device with adb_id =", adb_id)
     geekbench_desired_cap = {
@@ -168,7 +168,7 @@ def run_geekbench(adb_id,xindus_db_conn, run_id):
     Multi_core_element= multi_core_element.text
     print('single_core_element= ', single_core_element.text)
     print('multi_core_element= ', multi_core_element.text)
-    pull_screenshots(run_id, "Geekbench_CPU","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    pull_screenshots(run_id, "Geekbench_CPU",screenShotsPath)
     # Click the Back Button
     geekbench_driver.implicitly_wait(10)
     nav_back_element = geekbench_driver.find_element_by_xpath('//android.widget.ImageButton[@content-desc="Navigate up"]')

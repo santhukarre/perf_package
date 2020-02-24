@@ -8,6 +8,7 @@ from LMBench import run_lmbench,insert_lmbench_result,store_lmbench_result
 from Geekbench import run_geekbench,insert_geekbench_result,store_geekbench_result
 from Antutu import run_antutu,insert_antutu_result,store_antutu_result,generateAntutuReport
 from threedmark import run_3dmark,insert_threedmark_result,store_threedmark_result, generateThreeDmarkReport
+from xindusapp import run_xindusapp
 from Report import sendReportThroughMail
 from Androbench import generateAndrobenchReport
 import sys
@@ -17,6 +18,7 @@ mySQLPort = "3307"
 mySQLPassword = "XINDUS"
 emailId = "santhoshkarre956@gmail.com"
 password = "Chaankya@gmail.com"
+screenShotsPath = ""
 
 def run_all_perf_tools():
     global mySQLUser, mySQLPassword, mySQLPort
@@ -27,16 +29,15 @@ def run_all_perf_tools():
     print("Device adb_id = ", adb_id, "run_id = ", run_id);
     update_run_start_time()
     insert_runid(xindus_db_conn,run_id)
-    run_androbench(adb_id, xindus_db_conn, run_id)
-    run_antutu(adb_id,xindus_db_conn, run_id)
-    run_3dmark(adb_id,xindus_db_conn, run_id)
-    run_geekbench(adb_id,xindus_db_conn, run_id)
-    run_lmbench(1024,'rd',xindus_db_conn, run_id)
+    run_androbench(adb_id, xindus_db_conn, run_id, screenShotsPath)
+    run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath)
+    run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath)
+    run_geekbench(adb_id,xindus_db_conn, run_id, screenShotsPath)
+    run_lmbench(1024,'rd',xindus_db_conn, run_id, screenShotsPath)
+    run_xindusapp(7, 30, 1, 1, xindus_db_conn, run_id, screenShotsPath)
+
     update_run_end_time()
     insert_run_data(xindus_db_conn, run_id)
-    generateAndrobenchReport(xindus_db_conn)
-    generateAntutuReport(xindus_db_conn)
-    generateThreeDmarkReport(xindus_db_conn)
     sendReportThroughMail()
 
 def one_time_config():
@@ -54,11 +55,11 @@ def printDefaultArgs():
     print("MYSQL password corresponding to mysqluser =", mySQLUser, "is =", mySQLPassword)
 
 def printCmdArgs():
-    global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emaildId,password
+    global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emaildId,password, screenShotsPath
     program_name = sys.argv[0]
     argsCount = len(sys.argv)
     if(argsCount < 2):
-        print("XindusAutomation.py <onetime db configuration> <testing email id> <mysql username> <mysql port>")
+        print("XindusAutomation.py <onetime db configuration> <testing email id> <mysql username> <mysql port> <screenshots path>")
         printDefaultArgs()
         print("proceed with the default args")
         proceedWithDefaultArgs = input()
@@ -71,6 +72,7 @@ def printCmdArgs():
     emailId = sys.argv[2]
     mySQLUser = sys.argv[3]
     mySQLPort = sys.argv[4]
+    screenShotsPath = sys.argv[5]
 
     print("dbOneTimeConfig = ", dbOneTimeConfig)
     if (dbOneTimeConfig == '1'):

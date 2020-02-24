@@ -157,7 +157,7 @@ def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
     sql_delete_result = sql_delete_results_element.text
 
 
-def run_androbench(adb_id, xindus_db_conn, run_id):
+def run_androbench(adb_id, xindus_db_conn, run_id, screenshots_path):
     print("Running Androbench on device with adb_id =", adb_id)
     desired_cap = {
         "deviceName": adb_id,
@@ -201,5 +201,5 @@ def run_androbench(adb_id, xindus_db_conn, run_id):
     get_androdben_results(appium_web_driver, xindus_db_conn, run_id)
     insert_androbench_result(xindus_db_conn, run_id)
     store_androbench_result(xindus_db_conn, [1, 2])
-    pull_screenshots(run_id, "Androbench", "C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    pull_screenshots(run_id, "Androbench", screenshots_path)
     generateAndrobenchReport(xindus_db_conn)

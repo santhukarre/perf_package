@@ -4,7 +4,7 @@ from Run import wait_for_element,pull_screenshots, report_file_name
 import pandas as pd
 from vincent.colors import brews
 
-def run_xindusapp(threads,iterations,cache,loglevel,xindus_db_conn, run_id):
+def run_xindusapp(threads,iterations,cache,loglevel,xindus_db_conn, run_id, run_geekbench):
     global bytes_transferred, ddr_bw
     command = 'adb shell /data/xindus_app ' + str(threads) + str(iterations) + str(cache) + str(loglevel)
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -15,7 +15,8 @@ def run_xindusapp(threads,iterations,cache,loglevel,xindus_db_conn, run_id):
     buf = io.StringIO(str_output)
     xindus_op = buf.readline()
     print("bandwidth and memory values: ", xindus_op)
-    pull_screenshots(run_id, "Xindus_APP","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    #pull_screenshots(run_id, "Xindus_APP","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+
 def generateXindusAppReport(xindus_db_conn):
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from XindusApp_RESULT"

@@ -56,6 +56,7 @@ def insert_lmbench_result(xindus_db_conn, run_id):
     xindus_db_cursor.execute(lmbench_sql)
     print(lmbench_sql)
     xindus_db_conn.commit()
+
 def generateGeekbenchReport(xindus_db_conn):
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from LMBENCH_RESULT"
@@ -98,7 +99,8 @@ def generateGeekbenchReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-def run_lmbench(size,oprtn,xindus_db_conn, run_id):
+
+def run_lmbench(size,oprtn,xindus_db_conn, run_id, screenShotsPath):
     global bytes_transferred, ddr_bw
     command = 'adb shell /data/bw_mem ' + str(size) + ' ' + oprtn
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -114,4 +116,4 @@ def run_lmbench(size,oprtn,xindus_db_conn, run_id):
     bytes_transferred = lmbench_op.split(" ")[0]
     ddr_bw = lmbench_op.split(" ")[1]
     insert_lmbench_result(xindus_db_conn, run_id)
-    pull_screenshots(run_id, "LMBENCH","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    #pull_screenshots(run_id, "LMBENCH",screenShotsPath)
