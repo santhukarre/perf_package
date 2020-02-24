@@ -1,6 +1,8 @@
 from appium import webdriver
-from Run import pull_screenshots
+from Run import pull_screenshots,report_file_name
 import time
+import pandas as pd
+from vincent.colors import brews
 SlingopenGL_overall=""
 SlingopenGL_physics=""
 SlingopenGL_graphics=""
@@ -13,6 +15,49 @@ Slingshot_physics=""
 API_OPENGL=""
 API_VULKAN=""
 
+def generateThreeDmarkReport(xindus_db_conn):
+    mycursor = xindus_db_conn.cursor()
+    sql_read = "select * from THREEDMARK_RESULT"
+    mycursor.execute(sql_read)
+    data = mycursor.fetchall()
+    print("Total number of rows is ", mycursor.rowcount)
+    i = 0
+    iterations = []
+    iterations_names = []
+    for row in data:
+        iteration={'SlingShot_OPENGLoverallScore': row[1], 'SlingShot_OPENGLGraphicsScore': row[2], 'SlingShot_OPENGLPhysicsScore': row[3], 'SlingShot_VulkanoverallScore': row[4], 'SlingShot_VulkanGraphicsScore': row[5],'SlingShot_VulkanPhysicsScore':row[6],'SlingShot_overallScore':row[7],'SlingShot_GraphicsScore':row[8],'SlingShot_PhysicsScore':row[9],'API_OPENGLSCORE':row[9],'API_VULKANSCORE':row[10]}
+        iterations.append(iteration)
+        iterations_names.append('iteration '+ str(i))
+        i = i +1
+    data = iterations
+    index = iterations_names
+    # Create a Pandas dataframe from the data.
+    df = pd.DataFrame(data,index=index)
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    sheet_name = 'Sheet3'
+    writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name=sheet_name)
+    # Access the XlsxWriter workbook and worksheet objects from the dataframe.
+    workbook = writer.book
+    worksheet = writer.sheets[sheet_name]
+    # Create a chart object.
+    chart = workbook.add_chart({'type': 'column'})
+    # Configure the series of the chart from the dataframedata.
+    for col_num in range(1, len(row)):
+        print("col_num ", col_num)
+        chart.add_series({
+            'name':       ['Sheet3', 0, col_num],
+            'categories': ['Sheet3', 1, 0, i, 0],
+            'values':     ['Sheet3', 1, col_num, i, col_num],
+            'fill':       {'color': brews['Set1'][col_num - 1]},
+            'overlap':-10})
+    # Configure the chart axes.
+    chart.set_x_axis({'name': 'Iterations'})
+    chart.set_y_axis({'name': 'Score', 'major_gridlines': {'visible': False}})
+    # Insert the chart into the worksheet.
+    worksheet.insert_chart('H2', chart)
+    # Close the Pandas Excel writer and output the Excel file.
+    writer.save()
 def is_element_found(appium_web_driver, sec, element_id):
     try:
         print("sleeping for ", sec, " seconds to find the element")
@@ -98,7 +143,7 @@ def insert_threedmark_result(xindus_db_conn, run_id):
 
     benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'3',result_id),     # 3 is the ANDROBENCH_TOOL_ID
+        (run_id,'3',result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
@@ -197,6 +242,6 @@ def run_3dmark(adb_id,xindus_db_conn, run_id):
     insert_threedmark_result(xindus_db_conn, run_id)
     store_threedmark_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "3dmark_API","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
-
+    generateThreeDmarkReport(xindus_db_conn)
 
 

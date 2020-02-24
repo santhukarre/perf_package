@@ -1,9 +1,54 @@
 from appium import webdriver
 import time
-from Run import pull_screenshots
+from Run import pull_screenshots,report_file_name
+import pandas as pd
+from vincent.colors import brews
 Single_core_element = ""
 Multi_core_element= ""
 Opencl_score_element= ""
+
+def generateGeekbenchReport(xindus_db_conn):
+    mycursor = xindus_db_conn.cursor()
+    sql_read = "select * from GEEKBENCH_RESULT"
+    mycursor.execute(sql_read)
+    data = mycursor.fetchall()
+    print("Total number of rows is ", mycursor.rowcount)
+    i = 0
+    iterations = []
+    iterations_names = []
+    for row in data:
+        iteration={'Single_Core_element': row[1], 'Multi_Core_element': row[2], 'OpenGL_Score_element': row[3]}
+        iterations_names.append('iteration '+ str(i))
+        i = i +1
+    data = iterations
+    index = iterations_names
+    # Create a Pandas dataframe from the data.
+    df = pd.DataFrame(data,index=index)
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    sheet_name = 'Sheet4'
+    writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name=sheet_name)
+    # Access the XlsxWriter workbook and worksheet objects from the dataframe.
+    workbook = writer.book
+    worksheet = writer.sheets[sheet_name]
+    # Create a chart object.
+    chart = workbook.add_chart({'type': 'column'})
+    # Configure the series of the chart from the dataframedata.
+    for col_num in range(1, len(iterations) + 1):
+        print("col_num ", col_num)
+        chart.add_series({
+            'name':       ['Sheet4', 0, col_num],
+            'categories': ['Sheet4', 1, 0, i, 0],
+            'values':     ['Sheet4', 1, col_num, i, col_num],
+            'fill':       {'color': brews['Set1'][col_num - 1]},
+            'overlap':-10,})
+    # Configure the chart axes.
+    chart.set_x_axis({'name': 'Iterations'})
+    chart.set_y_axis({'name': 'Score', 'major_gridlines': {'visible': False}})
+    # Insert the chart into the worksheet.
+    worksheet.insert_chart('H2', chart)
+    # Close the Pandas Excel writer and output the Excel file.
+    writer.save()
 def is_element_found(appium_web_driver, sec, element_id):
     try:
         print("sleeping for ", sec, " seconds to find the element")
@@ -78,7 +123,7 @@ def insert_geekbench_result(xindus_db_conn, run_id):
 
     benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'3', result_id),     # 3 is the ANDROBENCH_TOOL_ID
+        (run_id,'4', result_id),     # 3 is the ANDROBENCH_TOOL_ID
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()

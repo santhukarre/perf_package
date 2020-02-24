@@ -1,6 +1,11 @@
 from appium import webdriver
-from Run import wait_for_element,pull_screenshots
+from Run import wait_for_element,pull_screenshots,report_file_name
+import pandas as pd
+from vincent.colors import brews
 import time
+import xlrd, xlwt
+from xlutils.copy import copy as xl_copy
+
 
 Antutu_total_score = ""
 Antutu_cpu_score = ""
@@ -8,6 +13,49 @@ Antutu_mem_score = ""
 Antutu_gpu_score = ""
 Antutu_ux_score = ""
 
+def generateAntutuReport(xindus_db_conn):
+    mycursor = xindus_db_conn.cursor()
+    sql_read = "select * from ANTUTU_RESULT"
+    mycursor.execute(sql_read)
+    data = mycursor.fetchall()
+    print("Total number of rows is ", mycursor.rowcount)
+    i = 0
+    iterations = []
+    iterations_names = []
+    for row in data:
+        iteration={'Antutu_totalScore': row[1], 'Antutu_cpu_score': row[2], 'Antutu_mem_score': row[3], 'Antutu_gpu_score': row[4], 'Antutu_ux_score': row[5]}
+        iterations.append(iteration)
+        iterations_names.append('iteration '+ str(i))
+        i = i +1
+    data = iterations
+    index = iterations_names
+    # Create a Pandas dataframe from the data.
+    df = pd.DataFrame(data, index=index)
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    sheet_name = 'Sheet2'
+    writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name=sheet_name)
+    # Access the XlsxWriter workbook and worksheet objects from the dataframe.
+    workbook = writer.book
+    worksheet = writer.sheets[sheet_name]
+    # Create a chart object.
+    chart = workbook.add_chart({'type': 'column'})
+    # Configure the series of the chart from the dataframedata.
+    for col_num in range(1,len(row)):
+        print("col_num ", col_num)
+        chart.add_series({
+            'name':       ['Sheet2', 0,col_num],
+            'categories': ['Sheet2', 1, 0, i, 0],
+            'values':     ['Sheet2', 1, col_num, i, col_num],
+            'fill':       {'color': brews['Set1'][col_num - 1]},
+            'overlap':-10,})
+    # Configure the chart axes.
+    chart.set_x_axis({'name': 'Iterations'})
+    chart.set_y_axis({'name': 'Score', 'major_gridlines': {'visible': False}})
+    # Insert the chart into the worksheet.
+    worksheet.insert_chart('H2', chart)
+    # Close the Pandas Excel writer and output the Excel file.
+    writer.save()
 def store_antutu_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
     sql_read = "select * from ANTUTU_RESULT"
@@ -55,9 +103,9 @@ def insert_antutu_result(xindus_db_conn, run_id):
 
     benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'3', result_id),     # 3 is the ANDROBENCH_TOOL_ID
+        (run_id,'2', result_id),
     ]
-    xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
+    xindus_db_cursor.executemany(benchmark_rslt_sql,benchmark_rslt_val)
     xindus_db_conn.commit()
 
     antutu_sql = "INSERT INTO ANTUTU_RESULT(RESULT_ID,ANTUTU_TOTAL_SCORE,ANTUTU_CPU_SCORE,ANTUTU_GPU_SCORE,ANTUTU_MEMORY_SCORE,ANTUTU_UX_SCORE) VALUES (%s,%s,%s,%s,%s,%s)"
@@ -82,9 +130,12 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
     appium_web_driver.implicitly_wait(30)
-    appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
+    #appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
     #Wait for Test Completion
-    antutu_total_score_element=wait_for_element(appium_web_driver,800,'com.antutu.ABenchMark:id/textViewTotalScore')
+    appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.ScrollView/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.TextView[2]').click()
+
+    #antutu_total_score_element=wait_for_element(appium_web_driver,800,'com.antutu.ABenchMark:id/textViewTotalScore')
+    antutu_total_score_element=appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/textViewTotalScore')
     Antutu_total_score = antutu_total_score_element.text
     print('Antutu Total Score :', Antutu_total_score)
     appium_web_driver.implicitly_wait(10)
@@ -114,3 +165,4 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     insert_antutu_result(xindus_db_conn, run_id)
     store_antutu_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "Antutu","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    generateAntutuReport(xindus_db_conn)

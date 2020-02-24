@@ -1,5 +1,5 @@
 from appium import webdriver
-from Run import wait_for_element,pull_screenshots, report_file_name
+from Run import wait_for_element,pull_screenshots,report_file_name
 import pandas as pd
 from vincent.colors import brews
 
@@ -39,7 +39,7 @@ def generateAndrobenchReport(xindus_db_conn):
     # Create a chart object.
     chart = workbook.add_chart({'type': 'column'})
     # Configure the series of the chart from the dataframedata.
-    for col_num in range(1, len(iterations) + 1):
+    for col_num in range(1, len(row)):
         print("col_num ", col_num)
         chart.add_series({
             'name':       ['Sheet1', 0, col_num],
@@ -122,7 +122,7 @@ def insert_androbench_result(xindus_db_conn, run_id):
 
     benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'3', result_id),     # 3 is the ANDROBENCH_TOOL_ID
+        (run_id,'1', result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()

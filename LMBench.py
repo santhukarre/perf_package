@@ -1,5 +1,8 @@
 import subprocess
 import io
+from Run import pull_screenshots,report_file_name
+import pandas as pd
+from vincent.colors import brews
 
 def store_lmbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -42,7 +45,7 @@ def insert_lmbench_result(xindus_db_conn, run_id):
 
     benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id, '3', result_id),  # 3 is the ANDROBENCH_TOOL_ID
+        (run_id, '5', result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
@@ -51,8 +54,48 @@ def insert_lmbench_result(xindus_db_conn, run_id):
     xindus_db_cursor.execute(lmbench_sql)
     print(lmbench_sql)
     xindus_db_conn.commit()
-
-
+def generateGeekbenchReport(xindus_db_conn):
+    mycursor = xindus_db_conn.cursor()
+    sql_read = "select * from LMBENCH_RESULT"
+    mycursor.execute(sql_read)
+    data = mycursor.fetchall()
+    print("Total number of rows is ", mycursor.rowcount)
+    i = 0
+    iterations = []
+    iterations_names = []
+    for row in data:
+        iteration={'bytes_taransferred': row[1], 'ddr_bw': row[2]}
+        iterations_names.append('iteration '+ str(i))
+        i = i +1
+    data = iterations
+    index = iterations_names
+    # Create a Pandas dataframe from the data.
+    df = pd.DataFrame(data,index=index)
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    sheet_name = 'Sheet5'
+    writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name=sheet_name)
+    # Access the XlsxWriter workbook and worksheet objects from the dataframe.
+    workbook = writer.book
+    worksheet = writer.sheets[sheet_name]
+    # Create a chart object.
+    chart = workbook.add_chart({'type': 'column'})
+    # Configure the series of the chart from the dataframedata.
+    for col_num in range(1, len(iterations) + 1):
+        print("col_num ", col_num)
+        chart.add_series({
+            'name':       ['Sheet5', 0, col_num],
+            'categories': ['Sheet5', 1, 0, i, 0],
+            'values':     ['Sheet5', 1, col_num, i, col_num],
+            'fill':       {'color': brews['Set1'][col_num - 1]},
+            'overlap':-10,})
+    # Configure the chart axes.
+    chart.set_x_axis({'name': 'Iterations'})
+    chart.set_y_axis({'name': 'Score', 'major_gridlines': {'visible': False}})
+    # Insert the chart into the worksheet.
+    worksheet.insert_chart('H2', chart)
+    # Close the Pandas Excel writer and output the Excel file.
+    writer.save()
 def run_lmbench(size,oprtn,xindus_db_conn, run_id):
     global bytes_transferred, ddr_bw
     command = 'adb shell /data/x86_64-linux-gnu/bw_mem ' + str(size) + ' ' + oprtn
@@ -69,3 +112,4 @@ def run_lmbench(size,oprtn,xindus_db_conn, run_id):
     bytes_transferred = lmbench_op.split(" ")[0]
     ddr_bw = lmbench_op.split(" ")[1]
     insert_lmbench_result(xindus_db_conn, run_id)
+    pull_screenshots(run_id, "LMBENCH","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
