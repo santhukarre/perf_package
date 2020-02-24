@@ -7,6 +7,7 @@ Single_core_element = ""
 Multi_core_element= ""
 Opencl_score_element= ""
 
+report_file_name = "Xindus_PerfReport_Geekbench.xlsx"
 def generateGeekbenchReport(xindus_db_conn):
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from GEEKBENCH_RESULT"
@@ -18,6 +19,7 @@ def generateGeekbenchReport(xindus_db_conn):
     iterations_names = []
     for row in data:
         iteration={'Single_Core_element': row[1], 'Multi_Core_element': row[2], 'OpenGL_Score_element': row[3]}
+        iterations.append(iteration)
         iterations_names.append('iteration '+ str(i))
         i = i +1
     data = iterations
@@ -34,12 +36,12 @@ def generateGeekbenchReport(xindus_db_conn):
     # Create a chart object.
     chart = workbook.add_chart({'type': 'column'})
     # Configure the series of the chart from the dataframedata.
-    for col_num in range(1, len(iterations) + 1):
+    for col_num in range(1, len(row)):
         print("col_num ", col_num)
         chart.add_series({
             'name':       ['Sheet4', 0, col_num],
-            'categories': ['Sheet4', 1, 0, i, 0],
-            'values':     ['Sheet4', 1, col_num, i, col_num],
+            'categories': ['Sheet4', 1, 0, 1, 0],
+            'values':     ['Sheet4', 1, col_num, 1, col_num],
             'fill':       {'color': brews['Set1'][col_num - 1]},
             'overlap':-10,})
     # Configure the chart axes.

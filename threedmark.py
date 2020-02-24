@@ -15,6 +15,7 @@ Slingshot_physics=""
 API_OPENGL=""
 API_VULKAN=""
 
+report_file_name = "Xindus_PerfReport_3DMark.xlsx"
 def generateThreeDmarkReport(xindus_db_conn):
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from THREEDMARK_RESULT"

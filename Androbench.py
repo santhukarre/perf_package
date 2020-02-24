@@ -10,6 +10,7 @@ rand_write_result=""
 sql_insert_result=""
 sql_update_result=""
 sql_delete_result=""
+report_file_name = "Xindus_PerfReport_Androbench.xlsx"
 
 def generateAndrobenchReport(xindus_db_conn):
     mycursor = xindus_db_conn.cursor()
@@ -99,23 +100,23 @@ def get_androbench_result_id(xindus_db_conn):
     return result_id
 
 def insert_androbench_result(xindus_db_conn, run_id):
-    global seq_read_results, seq_write_results, rand_read_results, rand_write_results, sql_insert_results, sql_update_results, sql_delete_results
+    global seq_read_result, seq_write_result, rand_read_result, rand_write_result, sql_insert_result, sql_update_result, sql_delete_result
 
-    seq_read_results = seq_read_result.split(" ")[0]
-    seq_write_results = seq_write_result.split(" ")[0]
-    rand_read_results= rand_read_result.split(" ")[0]
-    rand_write_results = rand_write_result.split(" ")[0]
-    sql_insert_results = sql_insert_result.split(" ")[0]
-    sql_update_results = sql_update_result.split(" ")[0]
-    sql_delete_results = sql_delete_result.split(" ")[0]
+    seq_read_result = seq_read_result.split(" ")[0]
+    seq_write_result = seq_write_result.split(" ")[0]
+    rand_read_result= rand_read_result.split(" ")[0]
+    rand_write_result = rand_write_result.split(" ")[0]
+    sql_insert_result = sql_insert_result.split(" ")[0]
+    sql_update_result = sql_update_result.split(" ")[0]
+    sql_delete_result = sql_delete_result.split(" ")[0]
 
-    print('seq_read_result = ',seq_read_results)
-    print('seq_write_result = ', seq_write_results)
-    print('rand_read_result = ', rand_read_results)
-    print('rand_write_result = ', rand_write_results)
-    print('sql_insert_result = ', sql_insert_results)
-    print('sql_update_result = ', sql_update_results)
-    print('sql_delete_result = ', sql_delete_results)
+    print('seq_read_result = ',seq_read_result)
+    print('seq_write_result = ', seq_write_result)
+    print('rand_read_result = ', rand_read_result)
+    print('rand_write_result = ', rand_write_result)
+    print('sql_insert_result = ', sql_insert_result)
+    print('sql_update_result = ', sql_update_result)
+    print('sql_delete_result = ', sql_delete_result)
 	
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_androbench_result_id(xindus_db_conn)
@@ -154,6 +155,7 @@ def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
     sql_insert_result = sql_insert_results_element.text
     sql_update_result = sql_update_results_element.text
     sql_delete_result = sql_delete_results_element.text
+
 
 def run_androbench(adb_id, xindus_db_conn, run_id):
     print("Running Androbench on device with adb_id =", adb_id)

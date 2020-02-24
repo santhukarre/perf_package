@@ -4,6 +4,8 @@ from Run import pull_screenshots,report_file_name
 import pandas as pd
 from vincent.colors import brews
 
+report_file_name = "Xindus_PerfReport_LMBENCH.xlsx"
+
 def store_lmbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
     sql_read = "select * from LMBENCH_RESULT"
@@ -98,7 +100,7 @@ def generateGeekbenchReport(xindus_db_conn):
     writer.save()
 def run_lmbench(size,oprtn,xindus_db_conn, run_id):
     global bytes_transferred, ddr_bw
-    command = 'adb shell /data/x86_64-linux-gnu/bw_mem ' + str(size) + ' ' + oprtn
+    command = 'adb shell /data/bw_mem ' + str(size) + ' ' + oprtn
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (stdout, stderr) = p.communicate()
     print("standard output :", stderr)

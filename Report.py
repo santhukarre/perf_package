@@ -10,7 +10,9 @@ from Run import report_file_name
 
 sender_email = "santhoshkarre956@gmail.com"
 receiver_email = "santhoshkarre956@gmail.com"
-password = "Chaanakya@2014"
+password = ""
+
+report_file_name = "Xindus_PerfReport_Androbench.xlsx"
 
 def sendReportThroughMail():
     global report_file_name

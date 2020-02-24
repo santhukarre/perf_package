@@ -33,3 +33,4 @@ adb shell "mkdir /data/lmbench"
 adb push "./lmbench/* /data/lmbench"
 adb shell "mkdir /data/xindus"
 adb push "./xindus_app /data/xindus"
+cd ..

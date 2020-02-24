@@ -10,32 +10,101 @@ from Antutu import run_antutu,insert_antutu_result,store_antutu_result,generateA
 from threedmark import run_3dmark,insert_threedmark_result,store_threedmark_result, generateThreeDmarkReport
 from Report import sendReportThroughMail
 from Androbench import generateAndrobenchReport
+import sys
+import getpass
+mySQLUser = "root"
+mySQLPort = "3307"
+mySQLPassword = "XINDUS"
+emailId = "santhoshkarre956@gmail.com"
+password = "Chaankya@gmail.com"
 
 def run_all_perf_tools():
+    global mySQLUser, mySQLPassword, mySQLPort
     adb_id = get_adb_device_id()
 
-    xindus_db_conn = get_xindus_db_conn()
+    xindus_db_conn = get_xindus_db_conn(mySQLUser, mySQLPort, mySQLPassword)
     run_id = get_run_id(xindus_db_conn)
     print("Device adb_id = ", adb_id, "run_id = ", run_id);
     update_run_start_time()
     insert_runid(xindus_db_conn,run_id)
-    #run_androbench(adb_id, xindus_db_conn, run_id)
-    #run_antutu(adb_id,xindus_db_conn, run_id)
-    #run_3dmark(adb_id,xindus_db_conn, run_id)
+    run_androbench(adb_id, xindus_db_conn, run_id)
+    run_antutu(adb_id,xindus_db_conn, run_id)
+    run_3dmark(adb_id,xindus_db_conn, run_id)
     run_geekbench(adb_id,xindus_db_conn, run_id)
-    #run_lmbench(1024,'rd',xindus_db_conn, run_id)
+    run_lmbench(1024,'rd',xindus_db_conn, run_id)
     update_run_end_time()
     insert_run_data(xindus_db_conn, run_id)
-    #sendReportThroughMail()
-    #generateAndrobenchReport(xindus_db_conn)
-    #generateAntutuReport(xindus_db_conn)
-    #generateThreeDmarkReport(xindus_db_conn)
+    generateAndrobenchReport(xindus_db_conn)
+    generateAntutuReport(xindus_db_conn)
+    generateThreeDmarkReport(xindus_db_conn)
+    sendReportThroughMail()
 
 def one_time_config():
-    init_db()
+    global mySQLUser, mySQLPassword, mySQLPort
+    init_db(mySQLUser, mySQLPort, mySQLPassword)
+
+dbOneTimeConfig = '0'
+def printDefaultArgs():
+    global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emailId, password
+    print("dbOneTimeConfig =", dbOneTimeConfig)
+    print("emailid =", emailId)
+    print("password corresponding to emailid = ", emailId, "is =", password)
+    print("mySQLUser =", mySQLUser)
+    print("mySQLPort =", mySQLPort)
+    print("MYSQL password corresponding to mysqluser =", mySQLUser, "is =", mySQLPassword)
+
+def printCmdArgs():
+    global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emaildId,password
+    program_name = sys.argv[0]
+    argsCount = len(sys.argv)
+    if(argsCount < 2):
+        print("XindusAutomation.py <onetime db configuration> <testing email id> <mysql username> <mysql port>")
+        printDefaultArgs()
+        print("proceed with the default args")
+        proceedWithDefaultArgs = input()
+        if(proceedWithDefaultArgs == 'y'):
+            return;
+        else:
+            exit()
+    dbOneTimeConfig = sys.argv[1]
+
+    emailId = sys.argv[2]
+    mySQLUser = sys.argv[3]
+    mySQLPort = sys.argv[4]
+
+    print("dbOneTimeConfig = ", dbOneTimeConfig)
+    if (dbOneTimeConfig == '1'):
+        print("DB Config required")
+    if (dbOneTimeConfig == '0'):
+        print("DB Config is NOT required")
+    print("emailID = ", emailId)
+    print("password corresponding to emailid = ", emailId)
+    try:
+        password = getpass.getpass()
+    except Exception as error:
+        print('ERROR', error)
+    else:
+        print('Password entered:', password)
+
+    print("mySQLUser = ", mySQLUser)
+    print("mySQLPort = ", mySQLPort)
+    print("MYSQL password corresponding to mysqluser = ", mySQLUser)
+    try:
+        mySQLPassword = getpass.getpass()
+    except Exception as error:
+        print('ERROR', error)
+    else:
+        print('MYSQL Password entered:', mySQLPassword)
 
 def main():
-    #one_time_config()
+    global dbOneTimeConfig
+    printCmdArgs()
+    if (dbOneTimeConfig == '1'):
+        print("DB Config required")
+        one_time_config()
+    if (dbOneTimeConfig == '0'):
+        print("DB Config is NOT required")
+    print("password = ", password)
     run_all_perf_tools()
     #launch_xindusapp()
 

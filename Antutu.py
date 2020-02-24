@@ -3,8 +3,6 @@ from Run import wait_for_element,pull_screenshots,report_file_name
 import pandas as pd
 from vincent.colors import brews
 import time
-import xlrd, xlwt
-from xlutils.copy import copy as xl_copy
 
 
 Antutu_total_score = ""
@@ -12,6 +10,7 @@ Antutu_cpu_score = ""
 Antutu_mem_score = ""
 Antutu_gpu_score = ""
 Antutu_ux_score = ""
+report_file_name = "Xindus_PerfReport_Antutu.xlsx"
 
 def generateAntutuReport(xindus_db_conn):
     mycursor = xindus_db_conn.cursor()
@@ -130,12 +129,12 @@ def run_antutu(adb_id,xindus_db_conn, run_id):
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
     appium_web_driver.implicitly_wait(30)
-    #appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
+    appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
     #Wait for Test Completion
-    appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.ScrollView/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.TextView[2]').click()
+    #appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.ScrollView/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.TextView[2]').click()
 
-    #antutu_total_score_element=wait_for_element(appium_web_driver,800,'com.antutu.ABenchMark:id/textViewTotalScore')
-    antutu_total_score_element=appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/textViewTotalScore')
+    antutu_total_score_element=wait_for_element(appium_web_driver,800,'com.antutu.ABenchMark:id/textViewTotalScore')
+    #antutu_total_score_element=appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/textViewTotalScore')
     Antutu_total_score = antutu_total_score_element.text
     print('Antutu Total Score :', Antutu_total_score)
     appium_web_driver.implicitly_wait(10)

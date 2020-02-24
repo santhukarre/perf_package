@@ -1,19 +1,23 @@
 import mysql.connector
 
-def get_xindus_db_conn():
+
+def get_xindus_db_conn(mySQLUser, mySQLPort, mySQLPassword):
+  print("mySQLPort = ", mySQLPort)
   xindus_db_con = mysql.connector.connect(
     host="localhost",
-    user="root",
-    passwd="srivani123",
+    user=mySQLUser,
+    port=int(mySQLPort),
+    passwd=mySQLPassword,
     database="Xindus_DB"
   )
   return xindus_db_con
 
-def create_tables():
+def create_tables(mySQLUser, mySQLPort, mySQLPassword):
   xindus_db_con = mysql.connector.connect(
     host="localhost",
-    user="root",
-    passwd="srivani123",
+    user=mySQLUser,
+    port=int(mySQLPort),
+    passwd=mySQLPassword,
     database="Xindus_DB"
   )
   xindus_db_cursor = xindus_db_con.cursor()
@@ -64,15 +68,17 @@ def populate_tables(xindus_db_conn):
     populate_tools(xindus_db_conn)
     populate_kpi(xindus_db_conn)
 
-def init_db():
+def init_db(mySQLUser, mySQLPort, mySQLPassword):
+  print("mySQLPort = ", mySQLPort)
   connection = mysql.connector.connect(
     host="localhost",
-    user="root",
-    passwd="srivani123",
+    user=mySQLUser,
+    port=int(mySQLPort),
+    passwd=mySQLPassword,
   )
   xindus_db_cursor = connection.cursor()
   xindus_db_cursor.execute("Create database IF NOT EXISTS Xindus_DB ")
   connection.commit()
-  xindus_db_conn = create_tables()
+  xindus_db_conn = create_tables(mySQLUser, mySQLPort, mySQLPassword)
   populate_tables(xindus_db_conn)
 
