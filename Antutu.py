@@ -3,7 +3,8 @@ from Run import wait_for_element,pull_screenshots,report_file_name
 import pandas as pd
 from vincent.colors import brews
 import time
-
+from Run import wait_for_element, pull_screenshots, report_file_name
+import openpyxl
 
 Antutu_total_score = ""
 Antutu_cpu_score = ""
@@ -128,11 +129,21 @@ def run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath):
         "automationName": "UiAutomator1"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
-    appium_web_driver.implicitly_wait(30)
-    appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
-    #Wait for Test Completion
-    #appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.ScrollView/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.TextView[2]').click()
+    permission_element = wait_for_element(appium_web_driver, 50, 'com.android.packageinstaller:id/permission_allow_button')
 
+    if(permission_element != None):
+        print("it means it is appium web element")
+        permission_element.click()
+        appium_web_driver.implicitly_wait(10)
+        appium_web_driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button').click()
+        appium_web_driver.implicitly_wait(10)
+        appium_web_driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button').click()
+    main_test_start_element = wait_for_element(appium_web_driver, 100,'com.antutu.ABenchMark:id/main_test_start_title')
+
+    if(main_test_start_element != None):
+        main_test_start_element.click()
+    else:
+        appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
     antutu_total_score_element=wait_for_element(appium_web_driver,800,'com.antutu.ABenchMark:id/textViewTotalScore')
     #antutu_total_score_element=appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/textViewTotalScore')
     Antutu_total_score = antutu_total_score_element.text

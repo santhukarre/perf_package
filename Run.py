@@ -11,7 +11,7 @@ run_id = ""
 
 def is_element_found(appium_web_driver, sec, element_id):
     try:
-        print("sleeping for ", sec, " seconds to find the element")
+        print("sleeping for ", sec, " seconds to find the element with id = ", element_id)
         appium_web_driver.implicitly_wait(sec)
         found_element_id = appium_web_driver.find_element_by_id(element_id)
         return True
@@ -19,23 +19,54 @@ def is_element_found(appium_web_driver, sec, element_id):
         print("exception occured")
         return False
 
-found_element_id = ""
+found_element_id = ()
 def wait_for_element(appium_web_driver, secs, element_id):
    global  found_element_id
+   no_element_found = ()
    each_iteration_sleep = 50
    iterations = (int)(secs/each_iteration_sleep)
-   print("Total iterations  = ", iterations)
+   iterations = iterations + 1
+   print("Wait for element Total iterations  = ", iterations, "element_id = ", element_id)
    for i in range(1, iterations):
         print("iteration no. = ", i )
         element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
         if(element_found == True):
             global  found_element_id
             found_element_id = appium_web_driver.find_element_by_id(element_id)
-            break
+            return found_element_id
         if(element_found == False):
             print("Sleeping explicilty for 5 seconds")
             time.sleep(5)
-   return found_element_id
+   return None
+def is_element_found_xpath(appium_web_driver, sec, element_id):
+    try:
+        print("sleeping for ", sec, " seconds to find the element")
+        appium_web_driver.implicitly_wait(sec)
+        found_element_id = appium_web_driver.find_element_by_xpath(element_id)
+        return True
+    except:
+        print("exception occured")
+        return False
+
+found_element_id = ""
+def wait_for_element_xpath(appium_web_driver, secs, element_id):
+   global  found_element_id
+   each_iteration_sleep = 50
+   iterations = (int)(secs/each_iteration_sleep)
+   iterations = iterations +1
+   print("Total iterations  = ", iterations)
+   for i in range(1, iterations):
+        print("iteration no. = ", i )
+        element_found = is_element_found_xpath(appium_web_driver, each_iteration_sleep, element_id)
+        if(element_found == True):
+            global  found_element_id
+            found_element_id = appium_web_driver.find_element_by_xpath(element_id)
+            return found_element_id
+        if(element_found == False):
+            print("Sleeping explicilty for 5 seconds")
+            time.sleep(5)
+   return None
+
 
 def update_run_start_time():
     global  START_DATE, START_TIME

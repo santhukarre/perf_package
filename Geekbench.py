@@ -1,6 +1,6 @@
 from appium import webdriver
 import time
-from Run import pull_screenshots,report_file_name
+from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath
 import pandas as pd
 from vincent.colors import brews
 Single_core_element = ""
@@ -51,33 +51,7 @@ def generateGeekbenchReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-def is_element_found(appium_web_driver, sec, element_id):
-    try:
-        print("sleeping for ", sec, " seconds to find the element")
-        appium_web_driver.implicitly_wait(sec)
-        found_element_id = appium_web_driver.find_element_by_xpath(element_id)
-        return True
-    except:
-        print("exception occured")
-        return False
 
-found_element_id = ""
-def wait_for_element(appium_web_driver, secs, element_id):
-   global  found_element_id
-   each_iteration_sleep = 50
-   iterations = (int)(secs/each_iteration_sleep)
-   print("Total iterations  = ", iterations)
-   for i in range(1, iterations):
-        print("iteration no. = ", i )
-        element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
-        if(element_found == True):
-            global  found_element_id
-            found_element_id = appium_web_driver.find_element_by_xpath(element_id)
-            break
-        if(element_found == False):
-            print("Sleeping explicilty for 5 seconds")
-            time.sleep(5)
-   return found_element_id
 
 
 def store_geekbench_result(xindus_db_conn, result_id_list):
@@ -150,19 +124,16 @@ def run_geekbench(adb_id,xindus_db_conn, run_id, screenShotsPath):
         "automationName": "uiautomator1"
     }
     geekbench_driver = webdriver.Remote("http://localhost:4723/wd/hub", geekbench_desired_cap)
-    geekbench_driver.implicitly_wait(30)
+    permission_element = wait_for_element(geekbench_driver, 50,'android:id/button1')
 
-    # Click the Accept button Button
-    #geekbench_driver.find_element_by_id('android:id/button1').click()
-    #geekbench_driver.implicitly_wait(30)
+    if (permission_element != None):
+        permission_element.click()
 
     # Click the RUN CPU Benchmark Button
     geekbench_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.support.v4.widget.DrawerLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.support.v4.view.ViewPager/android.widget.ScrollView/android.widget.LinearLayout/android.widget.FrameLayout[2]/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.Button').click()
 
-    #time.sleep(120)
-
     # get the Single core, Multi Core Results
-    single_core_element = wait_for_element(geekbench_driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.support.v4.view.ViewPager/android.webkit.WebView/android.webkit.WebView/android.view.View/android.view.View[2]/android.view.View[1]')
+    single_core_element = wait_for_element_xpath(geekbench_driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.support.v4.view.ViewPager/android.webkit.WebView/android.webkit.WebView/android.view.View/android.view.View[2]/android.view.View[1]')
     Single_core_element = single_core_element.text
     multi_core_element = geekbench_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.support.v4.view.ViewPager/android.webkit.WebView/android.webkit.WebView/android.view.View/android.view.View[2]/android.view.View[3]')
     Multi_core_element= multi_core_element.text

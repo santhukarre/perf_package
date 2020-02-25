@@ -1,5 +1,5 @@
 from appium import webdriver
-from Run import pull_screenshots,report_file_name
+from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath
 import time
 import pandas as pd
 from vincent.colors import brews
@@ -59,33 +59,6 @@ def generateThreeDmarkReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-def is_element_found(appium_web_driver, sec, element_id):
-    try:
-        print("sleeping for ", sec, " seconds to find the element")
-        appium_web_driver.implicitly_wait(sec)
-        found_element_id = appium_web_driver.find_element_by_xpath(element_id)
-        return True
-    except:
-        print("exception occured")
-        return False
-
-found_element_id = ""
-def wait_for_element(appium_web_driver, secs, element_id):
-   global  found_element_id
-   each_iteration_sleep = 50
-   iterations = (int)(secs/each_iteration_sleep)
-   print("Total iterations  = ", iterations)
-   for i in range(1, iterations):
-        print("iteration no. = ", i )
-        element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
-        if(element_found == True):
-            global  found_element_id
-            found_element_id = appium_web_driver.find_element_by_xpath(element_id)
-            break
-        if(element_found == False):
-            print("Sleeping explicilty for 5 seconds")
-            time.sleep(5)
-   return found_element_id
 
 def store_threedmark_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -171,25 +144,39 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     }
     print("adb_device_id = ", adb_id)
     driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
-    driver.implicitly_wait(20)
-    #continue_btn = driver.find_element_by_id('android:id/button1')
-    #continue_btn.click()
+    permission_element = wait_for_element(driver, 50,'android:id/button1')
+    if (permission_element != None):
+        permission_element.click()
+        driver.implicitly_wait(20)
+        continue_btn = driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button')
+        continue_btn.click()
+        driver.implicitly_wait(20)
+        warning_btn = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_bt_tutorial_skip')
+        warning_btn.click()
+        driver.implicitly_wait(30)
 
-    #driver.implicitly_wait(20)
-    #warning_btn = driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button')
-    #warning_btn.click()
-
-    #driver.implicitly_wait(200)
-    #print("after implicit wait of 100 seconds");
-
-    #btn = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_fab_benchmark')
-    #btn.click()
-
-
+        btn = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_fab_progress_circle')
+        print("waiting for 20 seconds before clicking the button")
+        time.sleep(20)
+        btn.click()
+        print("waiting for 60 seconds for downloading files")
+        time.sleep(60)
+        goto_API = driver.find_element_by_xpath('//android.support.v7.app.ActionBar.Tab[@content-desc="API Overhead"]/android.widget.TextView')
+        goto_API.click()
+        btn1 = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_fab_progress_circle')
+        print("waiting for 20 seconds before clicking the button")
+        time.sleep(20)
+        btn1.click()
+        goto_Sling = driver.find_element_by_xpath('//android.support.v7.app.ActionBar.Tab[@content-desc="Sling Shot Extreme"]/android.widget.TextView')
+        print("waiting for 20 seconds before clicking the button")
+        time.sleep(20)
+        goto_Sling.click()
+        print("waiting for 60 seconds for downloading files")
+        time.sleep(60)
     run_sling = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_fab_progress_circle')
     run_sling.click()
 
-    slingopenGL_overall=wait_for_element(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
+    slingopenGL_overall=wait_for_element_xpath(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
     SlingopenGL_overall = slingopenGL_overall.text
     print('sling shot extreme OpenGL overall score :',slingopenGL_overall.text)
     slingopenGL_graphics=driver.find_element_by_xpath(' /hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')
@@ -216,7 +203,7 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     run_slingshot = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_fab_progress_circle')
     run_slingshot.click()
 
-    slingshot_overall = wait_for_element(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
+    slingshot_overall = wait_for_element_xpath(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
     Slingshot_overall=slingshot_overall.text
     print('sling shot Vulkan overall score :', slingshot_overall.text)
     slingshot_graphics=driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')
@@ -233,7 +220,7 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     driver.implicitly_wait(10)
     run_API = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_fab_progress_circle')
     run_API.click()
-    API_OpenGL =wait_for_element(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
+    API_OpenGL =wait_for_element_xpath(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
     API_OPENGL=API_OpenGL.text
     print('API OpenGL Drawcalls/sec score :', API_OpenGL.text)
     API_Vulkan = driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')

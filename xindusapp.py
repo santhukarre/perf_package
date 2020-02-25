@@ -36,7 +36,7 @@ def generateXindusAppReport(xindus_db_conn):
     # Create a Pandas dataframe from the data.
     df = pd.DataFrame(data,index=index)
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    sheet_name = 'Sheet1'
+    sheet_name = 'Sheet6'
     writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=sheet_name)
     # Access the XlsxWriter workbook and worksheet objects from the dataframe.
@@ -48,9 +48,9 @@ def generateXindusAppReport(xindus_db_conn):
     for col_num in range(1, len(iterations) + 1):
         print("col_num ", col_num)
         chart.add_series({
-            'name':       ['Sheet1', 0, col_num],
-            'categories': ['Sheet1', 1, 0, i, 0],
-            'values':     ['Sheet1', 1, col_num, i, col_num],
+            'name':       ['Sheet6', 0, col_num],
+            'categories': ['Sheet6', 1, 0, i, 0],
+            'values':     ['Sheet6', 1, col_num, i, col_num],
             'fill':       {'color': brews['Set1'][col_num - 1]},
             'overlap':-10,})
     # Configure the chart axes.
