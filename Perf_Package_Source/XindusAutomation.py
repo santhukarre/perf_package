@@ -33,8 +33,8 @@ def run_all_perf_tools():
     run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath)
     run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath)
     run_geekbench(adb_id,xindus_db_conn, run_id, screenShotsPath)
-    run_lmbench(1024,'rd',xindus_db_conn, run_id, screenShotsPath)
-    run_xindusapp(7, 30, 1, 1, xindus_db_conn, run_id, screenShotsPath)
+    #run_lmbench(1024,'rd',xindus_db_conn, run_id, screenShotsPath)
+    #run_xindusapp(7, 30, 1, 1, xindus_db_conn, run_id, screenShotsPath)
 
     update_run_end_time()
     insert_run_data(xindus_db_conn, run_id)
