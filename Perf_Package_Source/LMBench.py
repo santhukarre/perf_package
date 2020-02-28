@@ -4,8 +4,6 @@ from Run import pull_screenshots,report_file_name
 import pandas as pd
 from vincent.colors import brews
 
-report_file_name = "Xindus_PerfReport_LMBENCH.xlsx"
-
 def store_lmbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
     sql_read = "select * from LMBENCH_RESULT"

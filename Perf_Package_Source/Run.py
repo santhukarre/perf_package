@@ -1,12 +1,23 @@
 import subprocess
 import datetime
 import time
+import xlwings as xw
 report_file_name = "Xindus_PerfReport.xlsx"
 START_DATE = ""
 START_TIME = ""
 END_DATE = ""
 END_TIME = ""
 run_id = ""
+
+
+def mergeWithFinalReport(src_path, dest_path, sheet_num):
+    wb1 = xw.Book(src_path)
+    wb2 = xw.Book(dest_path)
+
+    ws1 = wb1.sheets
+    ws1.api.Copy(Before=wb2.sheets(sheet_num).api)
+    wb2.save()
+    wb2.app.quit()
 
 
 def is_element_found(appium_web_driver, sec, element_id):

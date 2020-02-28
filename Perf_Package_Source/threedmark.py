@@ -3,6 +3,8 @@ from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_elem
 import time
 import pandas as pd
 from vincent.colors import brews
+from Run import mergeWithFinalReport
+
 SlingopenGL_overall=""
 SlingopenGL_physics=""
 SlingopenGL_graphics=""
@@ -14,9 +16,15 @@ Slingshot_graphics=""
 Slingshot_physics=""
 API_OPENGL=""
 API_VULKAN=""
+report_file_name = ""
 
-report_file_name = "Xindus_PerfReport_3DMark.xlsx"
+def remove(string):
+    return "".join(string.split())
 def generateThreeDmarkReport(xindus_db_conn):
+	globla report_file_name
+	
+	report_file_name = '.\THREEDMARK.xlsx'
+
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from THREEDMARK_RESULT"
     mycursor.execute(sql_read)
@@ -35,7 +43,7 @@ def generateThreeDmarkReport(xindus_db_conn):
     # Create a Pandas dataframe from the data.
     df = pd.DataFrame(data,index=index)
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    sheet_name = 'Sheet3'
+    sheet_name = 'THREEDMARK'
     writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=sheet_name)
     # Access the XlsxWriter workbook and worksheet objects from the dataframe.
@@ -47,9 +55,9 @@ def generateThreeDmarkReport(xindus_db_conn):
     for col_num in range(1, len(row)):
         print("col_num ", col_num)
         chart.add_series({
-            'name':       ['Sheet3', 0, col_num],
-            'categories': ['Sheet3', 1, 0, i, 0],
-            'values':     ['Sheet3', 1, col_num, i, col_num],
+            'name':       [sheet_name, 0, col_num],
+            'categories': [sheet_name, 1, 0, i, 0],
+            'values':     [sheet_name, 1, col_num, i, col_num],
             'fill':       {'color': brews['Set1'][col_num - 1]},
             'overlap':-10})
     # Configure the chart axes.
@@ -59,6 +67,8 @@ def generateThreeDmarkReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
+    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 3)
+    time.sleep(5)
 
 def store_threedmark_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -177,19 +187,23 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     run_sling.click()
 
     slingopenGL_overall=wait_for_element_xpath(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
-    SlingopenGL_overall = slingopenGL_overall.text
+    SlingopenGL_overall = remove(slingopenGL_overall.text)
     print('sling shot extreme OpenGL overall score :',slingopenGL_overall.text)
+    print(SlingopenGL_overall)
     slingopenGL_graphics=driver.find_element_by_xpath(' /hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')
-    SlingopenGL_graphics=slingopenGL_graphics.text
+    SlingopenGL_graphics=remove(slingopenGL_graphics.text)
     print('sling shot extreme OpenGL graphics score :', slingopenGL_graphics.text)
+    print(SlingopenGL_graphics)
     slingopenGL_physics=driver.find_element_by_xpath(' /hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[3]/android.widget.TextView[2]')
-    SlingopenGL_physics=slingopenGL_physics.text
+    SlingopenGL_physics=remove(slingopenGL_physics.text)
     print('sling shot extreme OpenGL physics score :', slingopenGL_physics.text)
+    print(SlingopenGL_physics)
     sling_overall =driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[2]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
-    Sling_overall=sling_overall.text
+    Sling_overall=remove(sling_overall.text)
     print('sling shot extreme Vulkan overall score :', sling_overall.text)
+    print(Sling_overall)
     sling_graphics=driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[2]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')
-    Sling_graphics=sling_graphics.text
+    Sling_graphics=remove(sling_graphics.text)
     print('sling shot extreme Vulkan graphics score :', sling_graphics.text)
     sling_physics=driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[2]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[3]/android.widget.TextView[2]')
     Sling_physics=sling_physics.text
@@ -204,14 +218,17 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     run_slingshot.click()
 
     slingshot_overall = wait_for_element_xpath(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
-    Slingshot_overall=slingshot_overall.text
+    Slingshot_overall=remove(slingshot_overall.text)
     print('sling shot Vulkan overall score :', slingshot_overall.text)
+    print(Slingshot_overall)
     slingshot_graphics=driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')
-    Slingshot_graphics=slingshot_graphics.text
+    Slingshot_graphics=remove(slingshot_graphics.text)
     print('sling shot Vulkan graphics score :', slingshot_graphics.text)
+    print(Slingshot_graphics)
     slingshot_physics=driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[5]/android.widget.TextView[2]')
-    Slingshot_physics=slingshot_physics.text
+    Slingshot_physics=remove(slingshot_physics.text)
     print('sling shot Vulkan physics score :', slingshot_physics.text)
+    print(Slingshot_physics)
     pull_screenshots(run_id, "3dmark_SLING","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
     Back = driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.ImageButton')
     Back.click()
@@ -221,11 +238,13 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     run_API = driver.find_element_by_id('com.futuremark.dmandroid.application:id/flm_fab_progress_circle')
     run_API.click()
     API_OpenGL =wait_for_element_xpath(driver,850,'/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[1]/android.widget.TextView[2]')
-    API_OPENGL=API_OpenGL.text
+    API_OPENGL=remove(API_OpenGL.text)
     print('API OpenGL Drawcalls/sec score :', API_OpenGL.text)
+    print(API_OPENGL)
     API_Vulkan = driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')
-    API_VULKAN=API_Vulkan.text
+    API_VULKAN=remove(API_Vulkan.text)
     print('API Vulkan Drawcalls/sec score :', API_Vulkan.text)
+    print(API_VULKAN)
 
     insert_threedmark_result(xindus_db_conn, run_id)
     store_threedmark_result(xindus_db_conn, [1, 2])

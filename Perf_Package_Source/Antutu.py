@@ -1,18 +1,22 @@
 from appium import webdriver
-from Run import wait_for_element,pull_screenshots,report_file_name
+
 import pandas as pd
 from vincent.colors import brews
-import time
-from Run import wait_for_element, pull_screenshots, report_file_name
+
+from Run import wait_for_element, pull_screenshots,mergeWithFinalReport
+import openpyxl
 
 Antutu_total_score = ""
 Antutu_cpu_score = ""
 Antutu_mem_score = ""
 Antutu_gpu_score = ""
 Antutu_ux_score = ""
-report_file_name = "Xindus_PerfReport_Antutu.xlsx"
+report_file_name = ""
 
 def generateAntutuReport(xindus_db_conn):
+	globla report_file_name
+	
+	report_file_name = '.\Antutu.xlsx'
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from ANTUTU_RESULT"
     mycursor.execute(sql_read)
@@ -31,7 +35,7 @@ def generateAntutuReport(xindus_db_conn):
     # Create a Pandas dataframe from the data.
     df = pd.DataFrame(data, index=index)
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    sheet_name = 'Sheet2'
+    sheet_name = 'Antutu'
     writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=sheet_name)
     # Access the XlsxWriter workbook and worksheet objects from the dataframe.
@@ -43,9 +47,9 @@ def generateAntutuReport(xindus_db_conn):
     for col_num in range(1,len(row)):
         print("col_num ", col_num)
         chart.add_series({
-            'name':       ['Sheet2', 0,col_num],
-            'categories': ['Sheet2', 1, 0, i, 0],
-            'values':     ['Sheet2', 1, col_num, i, col_num],
+            'name':       [sheet_name, 0,col_num],
+            'categories': [sheet_name, 1, 0, i, 0],
+            'values':     [sheet_name, 1, col_num, i, col_num],
             'fill':       {'color': brews['Set1'][col_num - 1]},
             'overlap':-10,})
     # Configure the chart axes.
@@ -55,6 +59,9 @@ def generateAntutuReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
+    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 2)
+    time.sleep(5)
+
 def store_antutu_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
     sql_read = "select * from ANTUTU_RESULT"

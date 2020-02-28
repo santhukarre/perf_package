@@ -1,7 +1,8 @@
 from appium import webdriver
-from Run import wait_for_element,pull_screenshots,report_file_name
+from Run import wait_for_element,pull_screenshots,mergeWithFinalReport
 import pandas as pd
 from vincent.colors import brews
+from Run import mergeWithFinalReport
 
 seq_read_result=""
 seq_write_result=""
@@ -10,9 +11,13 @@ rand_write_result=""
 sql_insert_result=""
 sql_update_result=""
 sql_delete_result=""
-report_file_name = "Xindus_PerfReport_Androbench.xlsx"
+
+report_file_name = ""
 
 def generateAndrobenchReport(xindus_db_conn):
+	globla report_file_name
+	
+	report_file_name = '.\Androbench.xlsx'
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from ANDROBENCH_RESULT"
     mycursor.execute(sql_read)
@@ -55,6 +60,9 @@ def generateAndrobenchReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
+    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 1)
+    time.sleep(5)
+
 
 def store_androbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()

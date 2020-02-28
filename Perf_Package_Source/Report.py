@@ -8,11 +8,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from Run import report_file_name
 
-sender_email = "santhoshkarre956@gmail.com"
-receiver_email = "santhoshkarre956@gmail.com"
+sender_email = ""
+receiver_email = ""
 password = ""
-
-report_file_name = "Xindus_PerfReport_Androbench.xlsx"
 
 def sendReportThroughMail():
     global report_file_name

@@ -8,11 +8,15 @@ from LMBench import run_lmbench,insert_lmbench_result,store_lmbench_result
 from Geekbench import run_geekbench,insert_geekbench_result,store_geekbench_result
 from Antutu import run_antutu,insert_antutu_result,store_antutu_result,generateAntutuReport
 from threedmark import run_3dmark,insert_threedmark_result,store_threedmark_result, generateThreeDmarkReport
-from xindusapp import run_xindusapp
+
 from Report import sendReportThroughMail
 from Androbench import generateAndrobenchReport
+from xindusapp import run_xindusapp
+
 import sys
 import getpass
+import xlsxwriter
+
 mySQLUser = "root"
 mySQLPort = "3307"
 mySQLPassword = "XINDUS"
@@ -20,6 +24,12 @@ emailId = "santhoshkarre956@gmail.com"
 password = "Chaankya@gmail.com"
 screenShotsPath = ""
 
+def createXindusReport():
+    workbook = xlsxwriter.Workbook('.\Xindus_PerfReport.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    workbook.close()
+	
 def run_all_perf_tools():
     global mySQLUser, mySQLPassword, mySQLPort
     adb_id = get_adb_device_id()
@@ -29,10 +39,14 @@ def run_all_perf_tools():
     print("Device adb_id = ", adb_id, "run_id = ", run_id);
     update_run_start_time()
     insert_runid(xindus_db_conn,run_id)
+    createXindusReport()
     run_androbench(adb_id, xindus_db_conn, run_id, screenShotsPath)
     run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath)
     run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath)
     run_geekbench(adb_id,xindus_db_conn, run_id, screenShotsPath)
+
+
+
     #run_lmbench(1024,'rd',xindus_db_conn, run_id, screenShotsPath)
     #run_xindusapp(7, 30, 1, 1, xindus_db_conn, run_id, screenShotsPath)
 
