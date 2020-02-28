@@ -26,7 +26,7 @@ def generateThreeDmarkReport(xindus_db_conn):
     iterations = []
     iterations_names = []
     for row in data:
-        iteration={'SlingShot_OPENGLoverallScore': row[1], 'SlingShot_OPENGLGraphicsScore': row[2], 'SlingShot_OPENGLPhysicsScore': row[3], 'SlingShot_VulkanoverallScore': row[4], 'SlingShot_VulkanGraphicsScore': row[5],'SlingShot_VulkanPhysicsScore':row[6],'SlingShot_overallScore':row[7],'SlingShot_GraphicsScore':row[8],'SlingShot_PhysicsScore':row[9],'API_OPENGLSCORE':row[9],'API_VULKANSCORE':row[10]}
+        iteration={'SlingShot_OPENGLoverallScore': row[1], 'SlingShot_OPENGLGraphicsScore': row[2], 'SlingShot_OPENGLPhysicsScore': row[3], 'SlingShot_VulkanoverallScore': row[4], 'SlingShot_VulkanGraphicsScore': row[5],'SlingShot_VulkanPhysicsScore':row[6],'SlingShot_overallScore':row[7],'SlingShot_GraphicsScore':row[8],'SlingShot_PhysicsScore':row[9],'API_OPENGLSCORE':row[10],'API_VULKANSCORE':row[11]}
         iterations.append(iteration)
         iterations_names.append('iteration '+ str(i))
         i = i +1

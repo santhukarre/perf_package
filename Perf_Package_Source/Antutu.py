@@ -137,7 +137,7 @@ def run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath):
         appium_web_driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button').click()
         appium_web_driver.implicitly_wait(10)
         appium_web_driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button').click()
-    main_test_start_element = wait_for_element(appium_web_driver, 100,'com.antutu.ABenchMark:id/main_test_start_title')
+    main_test_start_element = wait_for_element(appium_web_driver, 50,'com.antutu.ABenchMark:id/main_test_start_title')
 
     if(main_test_start_element != None):
         main_test_start_element.click()
