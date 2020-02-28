@@ -3,6 +3,9 @@ import io
 from Run import pull_screenshots,report_file_name
 import pandas as pd
 from vincent.colors import brews
+from Run import mergeWithFinalReport
+
+report_file_name = '.\LMBench.xlsx'
 
 def store_lmbench_result(xindus_db_conn, result_id_list):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -56,6 +59,8 @@ def insert_lmbench_result(xindus_db_conn, run_id):
     xindus_db_conn.commit()
 
 def generateGeekbenchReport(xindus_db_conn):
+    global report_file_name
+
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from LMBENCH_RESULT"
     mycursor.execute(sql_read)
@@ -97,6 +102,7 @@ def generateGeekbenchReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
+    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 5)
 
 def run_lmbench(size,oprtn,xindus_db_conn, run_id, screenShotsPath):
     global bytes_transferred, ddr_bw

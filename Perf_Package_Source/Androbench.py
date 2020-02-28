@@ -3,6 +3,7 @@ from Run import wait_for_element,pull_screenshots,mergeWithFinalReport
 import pandas as pd
 from vincent.colors import brews
 from Run import mergeWithFinalReport
+import time
 
 seq_read_result=""
 seq_write_result=""
@@ -12,12 +13,8 @@ sql_insert_result=""
 sql_update_result=""
 sql_delete_result=""
 
-report_file_name = ""
-
 def generateAndrobenchReport(xindus_db_conn):
-	globla report_file_name
-	
-	report_file_name = '.\Androbench.xlsx'
+    report_file_name = '.\Androbench.xlsx'
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from ANDROBENCH_RESULT"
     mycursor.execute(sql_read)

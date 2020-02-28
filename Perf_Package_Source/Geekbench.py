@@ -7,13 +7,8 @@ from Run import mergeWithFinalReport
 Single_core_element = ""
 Multi_core_element= ""
 Opencl_score_element= ""
-report_file_name = ""
 
 def generateGeekbenchReport(xindus_db_conn):
-	globla report_file_name
-	
-	report_file_name = '.\Geekbench.xlsx'
-
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from GEEKBENCH_RESULT"
     mycursor.execute(sql_read)
@@ -33,6 +28,7 @@ def generateGeekbenchReport(xindus_db_conn):
     df = pd.DataFrame(data,index=index)
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     sheet_name = 'Geekbench'
+    report_file_name = '.\Geekbench.xlsx'
     writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=sheet_name)
     # Access the XlsxWriter workbook and worksheet objects from the dataframe.

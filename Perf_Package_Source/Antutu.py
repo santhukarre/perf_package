@@ -1,8 +1,6 @@
 from appium import webdriver
-
 import pandas as pd
 from vincent.colors import brews
-
 from Run import wait_for_element, pull_screenshots,mergeWithFinalReport
 import openpyxl
 
@@ -11,12 +9,8 @@ Antutu_cpu_score = ""
 Antutu_mem_score = ""
 Antutu_gpu_score = ""
 Antutu_ux_score = ""
-report_file_name = ""
 
 def generateAntutuReport(xindus_db_conn):
-	globla report_file_name
-	
-	report_file_name = '.\Antutu.xlsx'
     mycursor = xindus_db_conn.cursor()
     sql_read = "select * from ANTUTU_RESULT"
     mycursor.execute(sql_read)
@@ -36,6 +30,7 @@ def generateAntutuReport(xindus_db_conn):
     df = pd.DataFrame(data, index=index)
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     sheet_name = 'Antutu'
+    report_file_name = '.\Antutu.xlsx'
     writer = pd.ExcelWriter(report_file_name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name=sheet_name)
     # Access the XlsxWriter workbook and worksheet objects from the dataframe.
