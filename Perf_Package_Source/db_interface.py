@@ -23,10 +23,10 @@ def create_tables(mySQLUser, mySQLPort, mySQLPassword):
     database="Xindus_DB"
     )
     xindus_db_cursor = xindus_db_con.cursor()
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS DEVICE(DEVICE_ID VARCHAR(255),NAME VARCHAR(255),CPU VARCHAR(255),CORES INT,DDR_SIZE INT,DDR_VENDOR INT,STORAGE INT,STORAGE_VENDOR INT)")
+    xindus_db_cursor.execute("Create Table  IF NOT EXISTS DEVICE(DEVICE_ID VARCHAR(255),NAME VARCHAR(255),CPU_HARDWARE VARCHAR(255),CPU_CORES INT,DDR_SIZE FLOAT,STORAGE VARCHAR(255),DDR_VENDOR INT,STORAGE_VENDOR INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS TOOLS(NAME VARCHAR(255),ID INT AUTO_INCREMENT PRIMARY KEY,CATEGORY VARCHAR(255))")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS SUBSYSTEMS(ID INT, FOREIGN KEY SUBSYSTEMS(ID) REFERENCES TOOLS(ID),SUSSYSTEM VARCHAR(255))")
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS RUN(RUN_ID INT PRIMARY KEY,START_DATE VARCHAR(255),START_TIME VARCHAR(255),END_DATE VARCHAR(255),END_TIME VARCHAR(255),MODE VARCHAR(255))")
+    xindus_db_cursor.execute("Create Table  IF NOT EXISTS RUN(RUN_ID INT PRIMARY KEY,RUN_COMMENTS VARCHAR(255),START_DATE VARCHAR(255),START_TIME VARCHAR(255),END_DATE VARCHAR(255),END_TIME VARCHAR(255),MODE VARCHAR(255))")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS KPIS(KPI_ID INT AUTO_INCREMENT,NAME VARCHAR(255),UNITS VARCHAR(255),PRIMARY KEY(KPI_ID))")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS RUN_KPI(RUN_ID INT,CONSTRAINT fk_category_3 FOREIGN KEY (RUN_ID) REFERENCES RUN(RUN_ID),KPI_ID INT NOT NULL,CONSTRAINT fk_category_4 FOREIGN KEY (KPI_ID) REFERENCES KPIS(KPI_ID),END_DATE VARCHAR(255),END_TIME VARCHAR(255))")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS TESTING_SEQUENCE(RUN_ID INT NOT NULL,CONSTRAINT fk_category_7 FOREIGN KEY (RUN_ID) REFERENCES RUN(RUN_ID),ID INT,CONSTRAINT fk_category_8 FOREIGN KEY (ID) REFERENCES TOOLS(ID),START_TIME VARCHAR(255),END_TIME VARCHAR(255))")
@@ -119,7 +119,7 @@ def getStorage():
     buf = io.StringIO(str_output)
     Storage = buf.readline()
     print("Storage = ", Storage.split(" ")[6])
-    #return Storage.split(" ")[6]
+    return Storage.split(" ")[6]
 
 def populate_device(xindus_db_conn):
     xindus_db_cursor = xindus_db_conn.cursor()
@@ -131,9 +131,7 @@ def populate_device(xindus_db_conn):
     Storage = getStorage()
     print("adb_id = ", adb_id, "name = ", name , "CPU = ", CPU, "Cores = ", Cores, "DDR_SIZE = ", DDR_SIZE, "Storage = ", Storage)
 
-    device_sql = "INSERT INTO DEVICE(DEVICE_ID,NAME,CPU,CORES,DDR_SIZE,STORAGE) VALUES(%s,%s,%s,%s,%s,%s)"
-    print("device_sql = ", device_sql)
-
+    device_sql = "INSERT INTO DEVICE(DEVICE_ID,NAME,CPU_HARDWARE,CPU_CORES,DDR_SIZE,STORAGE) VALUES(%s,%s,%s,%s,%s,%s)"
     device_val = [
     (adb_id,name,CPU,Cores,DDR_SIZE,Storage)
     ]

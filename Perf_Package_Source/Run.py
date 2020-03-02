@@ -113,12 +113,13 @@ def get_run_id(xindus_db_conn):
     return run_id
 
 def insert_runid(xindus_db_conn,run_id):
+    Run_comments = input()
     xindus_db_cursor = xindus_db_conn.cursor()
-    run_sql = "INSERT INTO RUN(RUN_ID) VALUES(%s)"
+    run_sql = "INSERT INTO RUN(RUN_ID,RUN_COMMENTS) VALUES(%s,%s)"
     run_val = [
-        (run_id)
+        (run_id,Run_comments)
     ]
-    xindus_db_cursor.execute(run_sql,run_val)
+    xindus_db_cursor.executemany(run_sql,run_val)
     xindus_db_conn.commit()
 
 def insert_run_data(xindus_db_conn, run_id):
