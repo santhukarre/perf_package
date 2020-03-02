@@ -1,9 +1,8 @@
 from appium import webdriver
 import time
-from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath
+from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath,mergeWithFinalReport
 import pandas as pd
 from vincent.colors import brews
-from Run import mergeWithFinalReport
 Single_core_element = ""
 Multi_core_element= ""
 Opencl_score_element= ""

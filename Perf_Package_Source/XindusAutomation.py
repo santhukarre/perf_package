@@ -8,7 +8,7 @@ from LMBench import run_lmbench,insert_lmbench_result,store_lmbench_result
 from Geekbench import run_geekbench,insert_geekbench_result,store_geekbench_result
 from Antutu import run_antutu,insert_antutu_result,store_antutu_result,generateAntutuReport
 from threedmark import run_3dmark,insert_threedmark_result,store_threedmark_result, generateThreeDmarkReport
-
+from db_interface import populate_tables
 from Report import sendReportThroughMail
 from Androbench import generateAndrobenchReport
 from xindusapp import run_xindusapp
@@ -18,8 +18,8 @@ import getpass
 import xlsxwriter
 
 mySQLUser = "root"
-mySQLPort = "3307"
-mySQLPassword = "XINDUS"
+mySQLPort = "3306"
+mySQLPassword = "srivani123"
 emailId = "santhoshkarre956@gmail.com"
 password = "Chaankya@gmail.com"
 screenShotsPath = ""
@@ -37,6 +37,7 @@ def run_all_perf_tools():
     xindus_db_conn = get_xindus_db_conn(mySQLUser, mySQLPort, mySQLPassword)
     run_id = get_run_id(xindus_db_conn)
     print("Device adb_id = ", adb_id, "run_id = ", run_id);
+    populate_tables(xindus_db_conn)
     update_run_start_time()
     insert_runid(xindus_db_conn,run_id)
     createXindusReport()
@@ -58,7 +59,7 @@ def one_time_config():
     global mySQLUser, mySQLPassword, mySQLPort
     init_db(mySQLUser, mySQLPort, mySQLPassword)
 
-dbOneTimeConfig = '0'
+dbOneTimeConfig = '1'
 def printDefaultArgs():
     global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emailId, password
     print("dbOneTimeConfig =", dbOneTimeConfig)
@@ -121,7 +122,9 @@ def main():
     if (dbOneTimeConfig == '0'):
         print("DB Config is NOT required")
     print("password = ", password)
+
     run_all_perf_tools()
+    print("")
     #launch_xindusapp()
 
 main()

@@ -53,12 +53,12 @@ def insert_lmbench_result(xindus_db_conn, run_id):
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
 
-    lmbench_sql = "INSERT INTO LMBENCH_RESULT(RESULT_ID,BYTES_Transferred,DDR_BW) VALUES (2,'" +bytes_transferred+ "','" +ddr_bw+ "')"
+    lmbench_sql = "INSERT INTO LMBENCH_RESULT(RESULT_ID,BYTES_Transferred,DDR_BW) VALUES (%s,'" +bytes_transferred+ "','" +ddr_bw+ "')"
     xindus_db_cursor.execute(lmbench_sql)
     print(lmbench_sql)
     xindus_db_conn.commit()
 
-def generateGeekbenchReport(xindus_db_conn):
+def generateLMbenchReport(xindus_db_conn):
     global report_file_name
 
     mycursor = xindus_db_conn.cursor()

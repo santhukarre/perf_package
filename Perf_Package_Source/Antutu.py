@@ -3,6 +3,7 @@ import pandas as pd
 from vincent.colors import brews
 from Run import wait_for_element, pull_screenshots,mergeWithFinalReport
 import openpyxl
+import time
 
 Antutu_total_score = ""
 Antutu_cpu_score = ""
