@@ -8,8 +8,9 @@ START_TIME = ""
 END_DATE = ""
 END_TIME = ""
 run_id = ""
-
-
+from adb_utility import get_adb_device_id
+from db_interface import getDeviceName
+from tabulate import tabulate
 def mergeWithFinalReport(src_path, dest_path, sheet_num):
     wb1 = xw.Book(src_path)
     wb2 = xw.Book(dest_path)
@@ -114,10 +115,12 @@ def get_run_id(xindus_db_conn):
 
 def insert_runid(xindus_db_conn,run_id):
     Run_comments = input()
+    adb_id = get_adb_device_id()
+    name = getDeviceName()
     xindus_db_cursor = xindus_db_conn.cursor()
-    run_sql = "INSERT INTO RUN(RUN_ID,RUN_COMMENTS) VALUES(%s,%s)"
+    run_sql = "INSERT INTO RUN(RUN_ID,DEVICE_ID,NAME,RUN_COMMENTS) VALUES(%s,%s,%s,%s)"
     run_val = [
-        (run_id,Run_comments)
+        (run_id,adb_id,name,Run_comments)
     ]
     xindus_db_cursor.executemany(run_sql,run_val)
     xindus_db_conn.commit()
@@ -137,6 +140,12 @@ def insert_run_data(xindus_db_conn, run_id):
     print("run_data_sql = ", run_data_sql)
     xindus_db_cursor.execute(run_data_sql)
     xindus_db_conn.commit()
+def generaterun_Report(xindus_db_conn):
+    mycursor = xindus_db_conn.cursor()
+    sql_read = "select * from Run"
+    mycursor.execute(sql_read)
+    data = mycursor.fetchall()
+    print(tabulate(data, headers=['RUN_ID','RUN_COMMENTS','DEVICE_ID','NAME','START_DATE','START_TIME','END_DATE','END_TIME','MODE'], tablefmt='psql'))
 
 def pull_screenshots(run_id, fileName, dest):
     screenshot_cmd = "adb shell screencap -p /sdcard/" + fileName + "_" + str(run_id) + ".png"

@@ -25,12 +25,10 @@ def create_tables(mySQLUser, mySQLPort, mySQLPassword):
     xindus_db_cursor = xindus_db_con.cursor()
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS DEVICE(DEVICE_ID VARCHAR(255),NAME VARCHAR(255),CPU_HARDWARE VARCHAR(255),CPU_CORES INT,DDR_SIZE FLOAT,STORAGE VARCHAR(255),DDR_VENDOR INT,STORAGE_VENDOR INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS TOOLS(NAME VARCHAR(255),ID INT AUTO_INCREMENT PRIMARY KEY,CATEGORY VARCHAR(255))")
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS SUBSYSTEMS(ID INT, FOREIGN KEY SUBSYSTEMS(ID) REFERENCES TOOLS(ID),SUSSYSTEM VARCHAR(255))")
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS RUN(RUN_ID INT PRIMARY KEY,RUN_COMMENTS VARCHAR(255),START_DATE VARCHAR(255),START_TIME VARCHAR(255),END_DATE VARCHAR(255),END_TIME VARCHAR(255),MODE VARCHAR(255))")
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS KPIS(KPI_ID INT AUTO_INCREMENT,NAME VARCHAR(255),UNITS VARCHAR(255),PRIMARY KEY(KPI_ID))")
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS RUN_KPI(RUN_ID INT,CONSTRAINT fk_category_3 FOREIGN KEY (RUN_ID) REFERENCES RUN(RUN_ID),KPI_ID INT NOT NULL,CONSTRAINT fk_category_4 FOREIGN KEY (KPI_ID) REFERENCES KPIS(KPI_ID),END_DATE VARCHAR(255),END_TIME VARCHAR(255))")
+    xindus_db_cursor.execute("Create Table  IF NOT EXISTS SUBSYSTEMS(ID INT, FOREIGN KEY SUBSYSTEMS(ID) REFERENCES TOOLS(ID),SUBSYSTEM VARCHAR(255))")
+    xindus_db_cursor.execute("Create Table  IF NOT EXISTS RUN(RUN_ID INT PRIMARY KEY,RUN_COMMENTS VARCHAR(255),DEVICE_ID VARCHAR(255),NAME VARCHAR(255),START_DATE VARCHAR(255),START_TIME VARCHAR(255),END_DATE VARCHAR(255),END_TIME VARCHAR(255),MODE VARCHAR(255))")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS TESTING_SEQUENCE(RUN_ID INT NOT NULL,CONSTRAINT fk_category_7 FOREIGN KEY (RUN_ID) REFERENCES RUN(RUN_ID),ID INT,CONSTRAINT fk_category_8 FOREIGN KEY (ID) REFERENCES TOOLS(ID),START_TIME VARCHAR(255),END_TIME VARCHAR(255))")
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS BENCHMARK_RESULT(RUN_ID INT,ID INT,CONSTRAINT fk_category_12 FOREIGN KEY (ID) REFERENCES TOOLS(ID),RESULT_ID INT)")
+    xindus_db_cursor.execute("Create Table  IF NOT EXISTS BENCHMARK_RESULT(RUN_ID INT,TOOL_NAME VARCHAR(255),RESULT_ID INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS ANDROBENCH_RESULT(RESULT_ID INT,SEQ_READ INT,SEQ_WRITE INT,RAND_READ INT,RAND_WRITE INT,SQL_INSERT INT,SQL_UPDATE INT,SQL_DELETE INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS ANTUTU_RESULT(RESULT_ID INT,ANTUTU_TOTAL_SCORE INT,ANTUTU_CPU_SCORE INT,ANTUTU_GPU_SCORE INT,ANTUTU_MEMORY_SCORE INT,ANTUTU_UX_SCORE INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS GEEKBENCH_RESULT(RESULT_ID INT,SINGLE_CORE_ELEMENT INT,MULTI_CORE_ELEMENT INT,OPENCL_SCORE_ELEMENT INT)")
@@ -49,23 +47,42 @@ def populate_tools(xindus_db_conn):
     ('3DMARK', 'PERF'),
     ('GEEKBENCH', 'PERF'),
     ('LMBENCH', 'PERF'),
+    ('XINDUS_APP', 'PERF'),
     ]
     xindus_db_cursor.executemany(tools_sql, tools_val)
     xindus_db_conn.commit()
-
-def populate_kpi(xindus_db_conn):
+def populate_Subsystems(xindus_db_conn):
     xindus_db_cursor = xindus_db_conn.cursor()
-    kpi_sql = "INSERT INTO KPIS(NAME,UNITS) VALUES (%s, %s)"
-    kpi_val = [
-    ('FLASH_SEQ_READ', 'MBPS'),
-    ('FLASH_SEQ_WRITE', 'MBPS'),
-    ('FLASH_RAND_READ', 'MBPS'),
-    ('FLASH_RAND_WRITE', 'MBPS'),
-    ('SQLITE_INSERT', 'QPS'),
-    ('SQLITE_UPDATE', 'QPS'),
-    ('SQLITE_DELETE', 'QPS'),
+    subsystem_sql = "INSERT INTO SUBSYSTEMS(ID,SUBSYSTEM) VALUES (%s, %s)"
+    subsystem_val = [
+    ('1', 'PERF'),
+    ('2', 'PERF'),
+    ('3', 'PERF'),
+    ('4', 'PERF'),
+    ('5', 'PERF'),
+    ('6', 'PERF'),
     ]
-    xindus_db_cursor.executemany(kpi_sql, kpi_val)
+    xindus_db_cursor.executemany(subsystem_sql, subsystem_val)
+    xindus_db_conn.commit()
+def insert_runid_testingseq(xindus_db_conn,run_id):
+    xindus_db_cursor = xindus_db_conn.cursor()
+    data_sql = "INSERT INTO TESTING_SEQUENCE(RUN_ID,ID) VALUES(%s,%s)"
+    data_val = [
+        (run_id)
+    ]
+    xindus_db_cursor.executemany(data_sql,data_val)
+    xindus_db_conn.commit()
+
+def insert_Tetsingseq_data(xindus_db_conn, run_id):
+    xindus_db_cursor = xindus_db_conn.cursor()
+    global START_TIME,END_TIME
+
+    testseq_data_sql = "Update TESTING_SEQUENCE SET START_TIME ='" + str(START_TIME) + "'," +\
+                    "END_TIME ='" + str(END_TIME) + "'," +\
+                    "where RUN_ID = '" + str(run_id) +"'"
+    print("run_id = ", run_id)
+    print("testseq_data_sql = ", testseq_data_sql)
+    xindus_db_cursor.execute(testseq_data_sql)
     xindus_db_conn.commit()
 
 def getDeviceName():
@@ -75,8 +92,9 @@ def getDeviceName():
     str_output = str(output, 'utf-8')
     buf = io.StringIO(str_output)
     device_name = buf.readline()
-    print(device_name.split(" ")[1])
-    return device_name.split(" ")[1]
+    dev=device_name.split(" ")[1].strip()
+    device=dev.strip("[]")
+    return device
 
 def getDDRSize():
     p = subprocess.Popen("adb shell cat /proc/meminfo | findstr MemTotal", stdout=subprocess.PIPE, shell=True)
@@ -139,8 +157,11 @@ def populate_device(xindus_db_conn):
     xindus_db_conn.commit()
 def populate_tables(xindus_db_conn):
     populate_tools(xindus_db_conn)
-    populate_kpi(xindus_db_conn)
     populate_device(xindus_db_conn)
+    #populate_Subsystems(xindus_db_conn)
+    #insert_runid_testingseq(xindus_db_conn,run_id)
+    #insert_Tetsingseq_data(xindus_db_conn,run_id)
+
 
 def init_db(mySQLUser, mySQLPort, mySQLPassword):
   print("mySQLPort = ", mySQLPort)

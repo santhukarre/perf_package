@@ -1,8 +1,8 @@
 from appium import webdriver
 from Run import wait_for_element,pull_screenshots,mergeWithFinalReport
+from tabulate import tabulate
 import pandas as pd
 from vincent.colors import brews
-from Run import mergeWithFinalReport
 import time
 
 seq_read_result=""
@@ -13,18 +13,30 @@ sql_insert_result=""
 sql_update_result=""
 sql_delete_result=""
 
-def generateAndrobenchReport(xindus_db_conn):
+
+def generateAndrobenchReport(xindus_db_conn,runids):
     report_file_name = '.\Androbench.xlsx'
     mycursor = xindus_db_conn.cursor()
-    sql_read = "select * from ANDROBENCH_RESULT"
-    mycursor.execute(sql_read)
+    print(runids)
+    data_table = []
+    for i in runids:
+        sql_read = "select * from ANDROBENCH_RESULT WHERE RESULT_ID IN (1)"
+        mycursor.execute(sql_read)
+        data = mycursor.fetchall()
+        print(data)
+        data_table.append(data)
+        #iterations_names.append('data ' + str(i))
+    #i = i + 1
+    runids = data_table
     data = mycursor.fetchall()
+    print(tabulate(data, headers=['result_id','seq_read', 'seq_write', 'rand_read','rand_write','sql_insert','sql_update','sql_delete'], tablefmt='psql'))
     print("Total number of rows is ", mycursor.rowcount)
     i = 0
     iterations = []
     iterations_names = []
     for row in data:
         iteration={'seq_read': row[1], 'seq_write': row[2], 'rand_read': row[3], 'rand_write': row[4], 'sql_insert': row[5],'sql_update': row[6],'sql_delete': row[7]}
+        print(iteration)
         iterations.append(iteration)
         iterations_names.append('iteration '+ str(i))
         i = i +1
@@ -126,9 +138,9 @@ def insert_androbench_result(xindus_db_conn, run_id):
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_androbench_result_id(xindus_db_conn)
 
-    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
+    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID,TOOL_NAME, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'1', result_id),
+        (run_id,'Androbench', result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
@@ -207,4 +219,4 @@ def run_androbench(adb_id, xindus_db_conn, run_id, screenshots_path):
     insert_androbench_result(xindus_db_conn, run_id)
     store_androbench_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "Androbench", screenshots_path)
-    generateAndrobenchReport(xindus_db_conn)
+    #generateAndrobenchReport(xindus_db_conn)

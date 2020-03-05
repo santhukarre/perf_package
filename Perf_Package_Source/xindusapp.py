@@ -15,7 +15,7 @@ def run_xindusapp(threads,iterations,cache,loglevel,xindus_db_conn, run_id, run_
     buf = io.StringIO(str_output)
     xindus_op = buf.readline()
     print("bandwidth and memory values: ", xindus_op)
-    #pull_screenshots(run_id, "Xindus_APP","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
+    pull_screenshots(run_id, "Xindus_APP","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
 
 def generateXindusAppReport(xindus_db_conn):
     mycursor = xindus_db_conn.cursor()

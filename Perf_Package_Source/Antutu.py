@@ -11,10 +11,10 @@ Antutu_mem_score = ""
 Antutu_gpu_score = ""
 Antutu_ux_score = ""
 
-def generateAntutuReport(xindus_db_conn):
+def generateAntutuReport(xindus_db_conn,runid):
     mycursor = xindus_db_conn.cursor()
-    sql_read = "select * from ANTUTU_RESULT"
-    mycursor.execute(sql_read)
+    sql_read = "select * from ANTUTU_RESULT WHERE RESULT_ID = %s"
+    mycursor.execute(sql_read,(runid))
     data = mycursor.fetchall()
     print("Total number of rows is ", mycursor.rowcount)
     i = 0
@@ -103,9 +103,9 @@ def insert_antutu_result(xindus_db_conn, run_id):
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_antutu_result_id(xindus_db_conn)
 
-    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
+    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID,TOOL_NAME, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'2', result_id),
+        (run_id,'Antutu', result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql,benchmark_rslt_val)
     xindus_db_conn.commit()
@@ -177,4 +177,4 @@ def run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath):
     insert_antutu_result(xindus_db_conn, run_id)
     store_antutu_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "Antutu",screenShotsPath)
-    generateAntutuReport(xindus_db_conn)
+    #generateAntutuReport(xindus_db_conn)

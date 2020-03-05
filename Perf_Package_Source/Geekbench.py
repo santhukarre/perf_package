@@ -98,9 +98,9 @@ def insert_geekbench_result(xindus_db_conn, run_id):
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_geekbench_result_id(xindus_db_conn)
 
-    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
+    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID,TOOL_NAME, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'4', result_id),     # 3 is the ANDROBENCH_TOOL_ID
+        (run_id,'GEEKBENCH',result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()

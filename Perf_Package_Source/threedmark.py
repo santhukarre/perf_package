@@ -121,16 +121,16 @@ def insert_threedmark_result(xindus_db_conn, run_id):
     xindus_db_cursor = xindus_db_conn.cursor()
     result_id = get_threedmark_result_id(xindus_db_conn)
 
-    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
+    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID,TOOL_NAME, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id,'3',result_id),
+        (run_id,'3DMARK',result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
 
-    threedmark_sql = "INSERT INTO THREEDMARK_RESULT(RESULT_ID,SLINGOPENGL_OVERALL,SLINGOPENGL_PHYSICS,SLINGOPENGL_GRAPHICS,SLING_OVERALL,SLING_GRAPHICS,SLING_PHYSICS,SLINGSHOT_OVERALL,SLINGSHOT_GRAPHICS,SLINGSHOT_PHYSICS,API_OPENGL,API_VULKAN) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+    threedmark_sql = "INSERT INTO THREEDMARK_RESULT(RESULT_ID,SLINGOPENGL_OVERALL,SLINGOPENGL_GRAPHICS,SLINGOPENGL_PHYSICS,SLING_OVERALL,SLING_GRAPHICS,SLING_PHYSICS,SLINGSHOT_OVERALL,SLINGSHOT_GRAPHICS,SLINGSHOT_PHYSICS,API_OPENGL,API_VULKAN) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
     threedmark_val = [
-        (result_id,SlingopenGL_overall,SlingopenGL_physics,SlingopenGL_graphics,Sling_overall,Sling_graphics,Sling_physics, Slingshot_overall, Slingshot_graphics, Slingshot_physics, API_OPENGL, API_VULKAN)
+        (result_id,SlingopenGL_overall,SlingopenGL_graphics,SlingopenGL_physics,Sling_overall,Sling_graphics,Sling_physics,Slingshot_overall,Slingshot_graphics,Slingshot_physics,API_OPENGL,API_VULKAN)
     ]
     xindus_db_cursor.executemany(threedmark_sql,threedmark_val)
     xindus_db_conn.commit()
@@ -201,9 +201,11 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     sling_graphics=driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[2]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[2]/android.widget.TextView[2]')
     Sling_graphics=remove(sling_graphics.text)
     print('sling shot extreme Vulkan graphics score :', sling_graphics.text)
+    print(Sling_graphics)
     sling_physics=driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.support.v7.widget.RecyclerView/android.widget.FrameLayout[2]/android.widget.LinearLayout/android.widget.LinearLayout/android.support.v7.widget.RecyclerView/android.view.ViewGroup[3]/android.widget.TextView[2]')
-    Sling_physics=sling_physics.text
+    Sling_physics=remove(sling_physics.text)
     print('sling shot extreme Vulkan physics score :', sling_physics.text)
+    print(Sling_physics)
     pull_screenshots(run_id, "3dmark","C:\KnowledgeCenter\Xindus\Code\Perf_package_final\OnePlusDeviceReports\\apps_data")
     nav_back =driver.find_element_by_xpath('//android.widget.ImageButton[@content-desc="Navigate up"]')
     nav_back.click()
@@ -245,6 +247,6 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     insert_threedmark_result(xindus_db_conn, run_id)
     store_threedmark_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "3dmark_API",screenShotsPath)
-    generateThreeDmarkReport(xindus_db_conn)
+    #generateThreeDmarkReport(xindus_db_conn)
 
 
