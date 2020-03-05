@@ -1,5 +1,5 @@
 from appium import webdriver
-from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath
+from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath,convert
 import time
 import pandas as pd
 from vincent.colors import brews
@@ -19,10 +19,14 @@ API_VULKAN=""
 
 def remove(string):
     return "".join(string.split())
-def generateThreeDmarkReport(xindus_db_conn):
+def generateThreeDmarkReport(xindus_db_conn,runids):
     mycursor = xindus_db_conn.cursor()
-    sql_read = "select * from THREEDMARK_RESULT"
-    mycursor.execute(sql_read)
+    print(runids)
+    run_ids = convert(runids)
+    print(run_ids)
+    statement = "SELECT * FROM THREEDMARK_RESULT WHERE RESULT_ID IN ({0})".format(
+        ', '.join(['%s'] * len(run_ids)))
+    mycursor.execute(statement, run_ids)
     data = mycursor.fetchall()
     print("Total number of rows is ", mycursor.rowcount)
     i = 0

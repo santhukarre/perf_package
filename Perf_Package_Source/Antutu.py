@@ -1,7 +1,7 @@
 from appium import webdriver
 import pandas as pd
 from vincent.colors import brews
-from Run import wait_for_element, pull_screenshots,mergeWithFinalReport
+from Run import wait_for_element, pull_screenshots,mergeWithFinalReport,convert
 import openpyxl
 import time
 
@@ -11,10 +11,14 @@ Antutu_mem_score = ""
 Antutu_gpu_score = ""
 Antutu_ux_score = ""
 
-def generateAntutuReport(xindus_db_conn,runid):
+def generateAntutuReport(xindus_db_conn,runids):
     mycursor = xindus_db_conn.cursor()
-    sql_read = "select * from ANTUTU_RESULT WHERE RESULT_ID = %s"
-    mycursor.execute(sql_read,(runid))
+    print(runids)
+    run_ids = convert(runids)
+    print(run_ids)
+    statement = "SELECT * FROM ANTUTU_RESULT WHERE RESULT_ID IN ({0})".format(
+        ', '.join(['%s'] * len(run_ids)))
+    mycursor.execute(statement, run_ids)
     data = mycursor.fetchall()
     print("Total number of rows is ", mycursor.rowcount)
     i = 0

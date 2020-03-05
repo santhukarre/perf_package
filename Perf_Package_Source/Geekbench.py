@@ -1,16 +1,20 @@
 from appium import webdriver
 import time
-from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath,mergeWithFinalReport
+from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath,mergeWithFinalReport,convert
 import pandas as pd
 from vincent.colors import brews
 Single_core_element = ""
 Multi_core_element= ""
 Opencl_score_element= ""
 
-def generateGeekbenchReport(xindus_db_conn):
+def generateGeekbenchReport(xindus_db_conn,runids):
     mycursor = xindus_db_conn.cursor()
-    sql_read = "select * from GEEKBENCH_RESULT"
-    mycursor.execute(sql_read)
+    print(runids)
+    run_ids = convert(runids)
+    print(run_ids)
+    statement = "SELECT * FROM GEEKBENCH_RESULT WHERE RESULT_ID IN ({0})".format(
+        ', '.join(['%s'] * len(run_ids)))
+    mycursor.execute(statement, run_ids)
     data = mycursor.fetchall()
     print("Total number of rows is ", mycursor.rowcount)
     i = 0

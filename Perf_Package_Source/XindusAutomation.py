@@ -53,18 +53,22 @@ def generateReportWithRunIds(xindus_db_conn,runids):
          data = mycursor.fetchall()
          print(data)
          Tools.append(data)
-    print("select benchmarks with same runid to compare")
-    name = input()
-    if(name=='Androbench'):
-        generateAndrobenchReport(xindus_db_conn,runids)
-    elif(name=='Antutu'):
-        generateAntutuReport(xindus_db_conn,runids)
-   #  elif(name='3DMARK'):
-   #       generateThreeDmarkReport(xindus_db_conn)
-   #  elif(name='GEEKBENCH'):
-   #       generateGeekbenchReport(xindus_db_conn)
-   #  else:
-   #       print("select any benchmark to compare")
+    print("select no of benchmarks inputs to generate graphs")
+    a = int(input())
+    print(a)
+    print("select benchmarks to Compare results with graph")
+    for row in range(a):
+        name = input()
+        if(name=='Androbench'):
+            generateAndrobenchReport(xindus_db_conn,runids)
+        elif(name=='Antutu'):
+            generateAntutuReport(xindus_db_conn,runids)
+        elif(name=='3DMARK'):
+            generateThreeDmarkReport(xindus_db_conn)
+        elif(name=='GEEKBENCH'):
+           generateGeekbenchReport(xindus_db_conn)
+        else:
+            print("select any benchmark to compare")
 
 def run_all_perf_tools():
     global mySQLUser, mySQLPassword, mySQLPort

@@ -11,6 +11,8 @@ run_id = ""
 from adb_utility import get_adb_device_id
 from db_interface import getDeviceName
 from tabulate import tabulate
+def convert(list):
+    return tuple(list)
 def mergeWithFinalReport(src_path, dest_path, sheet_num):
     wb1 = xw.Book(src_path)
     wb2 = xw.Book(dest_path)

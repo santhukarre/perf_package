@@ -1,5 +1,5 @@
 from appium import webdriver
-from Run import wait_for_element,pull_screenshots,mergeWithFinalReport
+from Run import wait_for_element,pull_screenshots,mergeWithFinalReport,convert
 from tabulate import tabulate
 import pandas as pd
 from vincent.colors import brews
@@ -13,22 +13,19 @@ sql_insert_result=""
 sql_update_result=""
 sql_delete_result=""
 
-
 def generateAndrobenchReport(xindus_db_conn,runids):
     report_file_name = '.\Androbench.xlsx'
     mycursor = xindus_db_conn.cursor()
     print(runids)
-    data_table = []
-    for i in runids:
-        sql_read = "select * from ANDROBENCH_RESULT WHERE RESULT_ID IN (1)"
-        mycursor.execute(sql_read)
-        data = mycursor.fetchall()
-        print(data)
-        data_table.append(data)
-        #iterations_names.append('data ' + str(i))
-    #i = i + 1
-    runids = data_table
+
+    run_ids=convert(runids)
+    print(run_ids)
+    statement = "SELECT * FROM ANDROBENCH_RESULT WHERE RESULT_ID IN ({0})".format(
+        ', '.join(['%s'] * len(run_ids)))
+    mycursor.execute(statement,run_ids)
     data = mycursor.fetchall()
+    print(data)
+
     print(tabulate(data, headers=['result_id','seq_read', 'seq_write', 'rand_read','rand_write','sql_insert','sql_update','sql_delete'], tablefmt='psql'))
     print("Total number of rows is ", mycursor.rowcount)
     i = 0
