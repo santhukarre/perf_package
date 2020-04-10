@@ -1,7 +1,7 @@
 from appium import webdriver
 from db_interface import init_db, get_xindus_db_conn
 import time
-from adb_utility import get_adb_device_id, launch_xindusapp
+from adb_utility import get_adb_device_id, launch_xindusapp, adb_id
 from Run import get_run_id,update_run_start_time, update_run_end_time, insert_run_data,insert_runid,pull_screenshots,generaterun_Report
 from Androbench import run_androbench,insert_androbench_result,generateAndrobenchReport
 from LMBench import run_lmbench,insert_lmbench_result,store_lmbench_result
@@ -11,18 +11,83 @@ from threedmark import run_3dmark,insert_threedmark_result,store_threedmark_resu
 from db_interface import populate_tables
 from Report import sendReportThroughMail
 from xindusapp import run_xindusapp
+import configparser
 
 import sys
 import getpass
 import xlsxwriter
 
 mySQLUser = "root"
-mySQLPort = "3306"
-mySQLPassword = "srivani123"
+mySQLPort = "3308"
+mySQLPassword = "KARRES"
 emailId = "santhoshkarre956@gmail.com"
-password = "Chaankya@gmail.com"
-screenShotsPath = ""
+password = "Chaankya@2014"
+logsPath = ""
 runids = ""
+
+xindus_app = False
+androbench = False
+lmbench = False
+geekbench = False
+threedmark = False
+gfx = False
+antutu = False
+
+def parseConfigFile():
+    global xindus_app, androbench, lmbench, geekbench, threedmark, gfx, antutu
+    global dbOneTimeConfig, mySQLUser, mySQLPort, emailId, logsPath
+
+    parser = configparser.ConfigParser()
+    parser.read('xindusconfig.ini')
+
+    print("Sections : ", parser.sections())
+    print("Xindus_Performance Package configuration")
+    dbOneTimeConfig = parser.getint('Xindus_Performance_Package', 'OneTimeConfig')
+    mySQLUser = parser.get('Xindus_Performance_Package', 'MySQLUserName')
+    mySQLPort = parser.get('Xindus_Performance_Package', 'MySQLPort')
+    emailId = parser.get('Xindus_Performance_Package', 'Email')
+    logsPath = parser.get('Xindus_Performance_Package', 'LogFile')
+
+    xindus_app = parser.getboolean('BenchMarks', 'Xindus_App')
+    androbench = parser.getboolean('BenchMarks', 'Androbench')
+    lmbench = parser.getboolean('BenchMarks', 'Lmbench')
+    geekbench = parser.getboolean('BenchMarks', 'Geekbench')
+    threedmark = parser.getboolean('BenchMarks', '3DMark')
+    gfx = parser.getboolean('BenchMarks', 'Gfx')
+    antutu = parser.getboolean('BenchMarks', 'Antutu')
+
+    xindus_app = parser.getboolean('BenchMarks', 'Xindus_App')
+    androbench = parser.getboolean('BenchMarks', 'Androbench')
+    lmbench = parser.getboolean('BenchMarks', 'Lmbench')
+    geekbench = parser.getboolean('BenchMarks', 'Geekbench')
+    threedmark = parser.getboolean('BenchMarks', '3DMark')
+    gfx = parser.getboolean('BenchMarks', 'Gfx')
+    antutu = parser.getboolean('BenchMarks', 'Antutu')
+
+    print("Xindus_App :", xindus_app)
+    print("androbench :", androbench)
+    print("lmbench :", lmbench)
+    print("geekbench :", geekbench)
+    print("threedmark :", threedmark)
+    print("gfx :", gfx)
+    print("antutu :", antutu)
+    print("\n")
+    print("Xindus_App configuration:")
+    print("Threads : ", parser.get('Xindus_App', 'Threads'))
+    print("Iterations : ", parser.get('Xindus_App', 'Iterations'))
+    print("Frequency : ", parser.get('Xindus_App', 'Frequency'))
+    print("Optimized : ", parser.get('Xindus_App', 'Optimized'))
+    print("LogLevel : ", parser.get('Xindus_App', 'LogLevel'))
+    if (xindus_app == True):
+        print("xindus_app configured")
+    else:
+        print("xindsu_app not configured")
+
+    if (threedmark == True):
+        print("threedmark configured")
+    else:
+        print("threedmark not configured")
+
 def createXindusReport():
     workbook = xlsxwriter.Workbook('.\Xindus_PerfReport.xlsx')
     worksheet = workbook.add_worksheet()
@@ -70,39 +135,42 @@ def generateReportWithRunIds(xindus_db_conn,runids):
         else:
             print("select any benchmark to compare")
 
-def run_all_perf_tools():
-    global mySQLUser, mySQLPassword, mySQLPort
-    adb_id = get_adb_device_id()
+def run_all_perf_tools(adb_id):
+    global mySQLUser, mySQLPassword, mySQLPort, logsPath
+    global xindus_app, androbench, lmbench, geekbench, threedmark, gfx, antutu
 
     xindus_db_conn = get_xindus_db_conn(mySQLUser, mySQLPort, mySQLPassword)
     run_id = get_run_id(xindus_db_conn)
-    print("Device adb_id = ", adb_id, "run_id = ", run_id);
 
-    #populate_tables(xindus_db_conn)
-    #update_run_start_time()
-    #insert_runid(xindus_db_conn,run_id)
+    populate_tables(xindus_db_conn,adb_id)
+    update_run_start_time()
+    insert_runid(xindus_db_conn,run_id, adb_id)
     createXindusReport()
-    generateReportWithRunIds(xindus_db_conn, runids)
     # generateReportWithRunIds(xindus_db_conn)
     #generateAndrobenchReport(xindus_db_conn)
-    #run_androbench(adb_id, xindus_db_conn, run_id, screenShotsPath)
-    #run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath)
-    #run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath)
-    #run_geekbench(adb_id,xindus_db_conn, run_id, screenShotsPath)
-
-    #run_lmbench(1024,'rd',xindus_db_conn, run_id, screenShotsPath)
-    #run_xindusapp(7, 30, 1, 1, xindus_db_conn, run_id, screenShotsPath)
-
-    #update_run_end_time()
-    #insert_run_data(xindus_db_conn, run_id)
-    #generaterun_Report(xindus_db_conn)
-    #sendReportThroughMail()
+    if(androbench == True):
+        run_androbench(adb_id, xindus_db_conn, run_id, logsPath)
+    if(antutu == True):
+        run_antutu(adb_id, xindus_db_conn, run_id, logsPath)
+    if(threedmark == True):
+        run_3dmark(adb_id, xindus_db_conn, run_id, logsPath)
+    if(geekbench == True):
+        run_geekbench(adb_id, xindus_db_conn, run_id, logsPath)
+    if(lmbench == True):
+        run_lmbench(1024,'rd', xindus_db_conn, run_id, logsPath)
+    if(xindus_app == True):
+        run_xindusapp(adb_id, xindus_db_conn, run_id, logsPath)
+    update_run_end_time()
+    insert_run_data(xindus_db_conn, run_id)
+    generateReportWithRunIds(xindus_db_conn, runids)
+    generaterun_Report(xindus_db_conn)
+    sendReportThroughMail()
 
 def one_time_config():
     global mySQLUser, mySQLPassword, mySQLPort
     init_db(mySQLUser, mySQLPort, mySQLPassword)
 
-dbOneTimeConfig = '1'
+dbOneTimeConfig = '0'
 def printDefaultArgs():
     global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emailId, password
     print("dbOneTimeConfig =", dbOneTimeConfig)
@@ -113,14 +181,14 @@ def printDefaultArgs():
     print("MYSQL password corresponding to mysqluser =", mySQLUser, "is =", mySQLPassword)
 
 def printCmdArgs():
-    global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emaildId,password, screenShotsPath
+    global dbOneTimeConfig, mySQLUser, mySQLPassword, mySQLPort, emaildId,password, logsPath
     program_name = sys.argv[0]
     argsCount = len(sys.argv)
     if(argsCount < 2):
         print("XindusAutomation.py <onetime db configuration> <testing email id> <mysql username> <mysql port> <screenshots path>")
         printDefaultArgs()
         print("proceed with the default args")
-        proceedWithDefaultArgs = input()
+        proceedWithDefaultArgs = 'y' #input()
         if(proceedWithDefaultArgs == 'y'):
             return;
         else:
@@ -130,7 +198,7 @@ def printCmdArgs():
     emailId = sys.argv[2]
     mySQLUser = sys.argv[3]
     mySQLPort = sys.argv[4]
-    screenShotsPath = sys.argv[5]
+    logsPath = sys.argv[5]
 
     print("dbOneTimeConfig = ", dbOneTimeConfig)
     if (dbOneTimeConfig == '1'):
@@ -158,6 +226,7 @@ def printCmdArgs():
 
 def main():
     global dbOneTimeConfig
+    parseConfigFile()
     printCmdArgs()
     if (dbOneTimeConfig == '1'):
         print("DB Config required")
@@ -165,8 +234,9 @@ def main():
     if (dbOneTimeConfig == '0'):
         print("DB Config is NOT required")
     print("password = ", password)
-
-    run_all_perf_tools()
+    adb_id = get_adb_device_id()
+    print("inside main adb_id = ", adb_id)
+    run_all_perf_tools(adb_id)
     print("")
     #launch_xindusapp()
 

@@ -34,6 +34,27 @@ def is_element_found(appium_web_driver, sec, element_id):
         return False
 
 found_element_id = ()
+
+def wait_for_element_quick(appium_web_driver, secs, element_id):
+   global  found_element_id
+   each_iteration_sleep = 5
+   iterations = (int)(secs/each_iteration_sleep)
+   iterations = iterations + 1
+   print("Wait for element Total iterations  = ", iterations, "element_id = ", element_id)
+   for i in range(1, iterations):
+        print("iteration no. = ", i, "total iterations = ", iterations)
+        element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
+        if(element_found == True):
+            global  found_element_id
+            found_element_id = appium_web_driver.find_element_by_id(element_id)
+            print("Found Element")
+            return found_element_id
+        if(element_found == False):
+            print("Sleeping explicilty for 5 seconds")
+            time.sleep(5)
+
+   return None
+
 def wait_for_element(appium_web_driver, secs, element_id):
    global  found_element_id
    no_element_found = ()
@@ -100,6 +121,7 @@ def update_run_start_end_time():
     print("START_DATE = ", START_DATE , "END_DATE = ", END_DATE)
 
 def get_run_id(xindus_db_conn):
+    print("Inside get_run_id")
     xindus_db_cursor = xindus_db_conn.cursor()
     sql_read = "select MAX(RUN_ID) from RUN"
     xindus_db_cursor.execute(sql_read)
@@ -107,18 +129,20 @@ def get_run_id(xindus_db_conn):
     print("Total number of rows is ", xindus_db_cursor.rowcount)
     for row in data:
         run_id = row[0]
-        print("row [0] = ", row[0])
+        #print("row [0] = ", row[0])
     if(run_id == None):
         run_id = 1
     else:
-        print("run_id = ", run_id)
+        #print("run_id = ", run_id)
         run_id = run_id + 1
+    print("run_id =", run_id)
     return run_id
 
-def insert_runid(xindus_db_conn,run_id):
-    Run_comments = input()
-    adb_id = get_adb_device_id()
-    name = getDeviceName()
+def insert_runid(xindus_db_conn,run_id,adb_id):
+    print("insert runid")
+    print("Please provide the comments for Run")
+    Run_comments = "test" #input()
+    name =  "note4" #getDeviceName()
     xindus_db_cursor = xindus_db_conn.cursor()
     run_sql = "INSERT INTO RUN(RUN_ID,DEVICE_ID,NAME,RUN_COMMENTS) VALUES(%s,%s,%s,%s)"
     run_val = [

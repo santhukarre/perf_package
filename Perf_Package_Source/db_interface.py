@@ -1,7 +1,7 @@
 import mysql.connector
 import subprocess
 import io
-from adb_utility import get_adb_device_id
+from adb_utility import adb_id
 
 def get_xindus_db_conn(mySQLUser, mySQLPort, mySQLPassword):
     print("mySQLPort = ", mySQLPort)
@@ -94,6 +94,7 @@ def getDeviceName():
     device_name = buf.readline()
     dev=device_name.split(" ")[1].strip()
     device=dev.strip("[]")
+    print("Inside getDeviceName device= ", device)
     return device
 
 def getDDRSize():
@@ -104,7 +105,7 @@ def getDDRSize():
     buf = io.StringIO(str_output)
     DDR_SIZE = buf.readline()
     size = int(DDR_SIZE.split(" ")[8])/(1024*1024)
-    print("%.2f " % round(size,2))
+    print("DDR Size = %.2f " % round(size,2))
     return round(size,2)
 
 def getCPUCores():
@@ -116,7 +117,7 @@ def getCPUCores():
      CPU_CORES = buf.readline()
      cpu = CPU_CORES.split(" ")[1]
      cpucores=int(cpu)+1
-     print(cpucores)
+     print("No. of CPU Cores = ", cpucores)
      return cpucores
 
 def getCPU():
@@ -126,7 +127,7 @@ def getCPU():
      str_output = str(output, 'utf-8')
      buf = io.StringIO(str_output)
      CPU = buf.readline()
-     print(CPU.split(" ")[1])
+     print("CPU = ", CPU.split(" ")[1])
      return CPU.split(" ")[1]
 
 def getStorage():
@@ -139,9 +140,9 @@ def getStorage():
     print("Storage = ", Storage.split(" ")[6])
     return Storage.split(" ")[6]
 
-def populate_device(xindus_db_conn):
+def populate_device(xindus_db_conn, adb_id):
+    print("Inside populate_device function")
     xindus_db_cursor = xindus_db_conn.cursor()
-    adb_id = get_adb_device_id()
     name = getDeviceName()
     CPU = getCPU()
     Cores = getCPUCores()
@@ -155,9 +156,10 @@ def populate_device(xindus_db_conn):
     ]
     xindus_db_cursor.executemany(device_sql,device_val)
     xindus_db_conn.commit()
-def populate_tables(xindus_db_conn):
+def populate_tables(xindus_db_conn,adb_id):
+    print("Inside populate_tables")
     populate_tools(xindus_db_conn)
-    populate_device(xindus_db_conn)
+    populate_device(xindus_db_conn,adb_id)
     #populate_Subsystems(xindus_db_conn)
     #insert_runid_testingseq(xindus_db_conn,run_id)
     #insert_Tetsingseq_data(xindus_db_conn,run_id)
