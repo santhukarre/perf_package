@@ -10,7 +10,7 @@ from Antutu import run_antutu,insert_antutu_result,store_antutu_result,generateA
 from threedmark import run_3dmark,insert_threedmark_result,store_threedmark_result, generateThreeDmarkReport
 from db_interface import populate_tables
 from Report import sendReportThroughMail
-from xindusapp import run_xindusapp
+from xindusapp import run_xindusapp,generateXindusAppReport,generateXindusAppReport_Freq
 import configparser
 
 import sys
@@ -132,6 +132,9 @@ def generateReportWithRunIds(xindus_db_conn,runids):
             generateThreeDmarkReport(xindus_db_conn)
         elif(name=='GEEKBENCH'):
            generateGeekbenchReport(xindus_db_conn)
+        elif(name=='XINDUSAPP'):
+            generateXindusAppReport(xindus_db_conn)
+            generateXindusAppReport_Freq(xindus_db_conn)
         else:
             print("select any benchmark to compare")
 
@@ -142,12 +145,11 @@ def run_all_perf_tools(adb_id):
     xindus_db_conn = get_xindus_db_conn(mySQLUser, mySQLPort, mySQLPassword)
     run_id = get_run_id(xindus_db_conn)
 
-    populate_tables(xindus_db_conn,adb_id)
     update_run_start_time()
     insert_runid(xindus_db_conn,run_id, adb_id)
     createXindusReport()
-    # generateReportWithRunIds(xindus_db_conn)
-    #generateAndrobenchReport(xindus_db_conn)
+    if (xindus_app == True):
+        run_xindusapp(adb_id, xindus_db_conn, run_id, logsPath)
     if(androbench == True):
         run_androbench(adb_id, xindus_db_conn, run_id, logsPath)
     if(antutu == True):
@@ -157,14 +159,13 @@ def run_all_perf_tools(adb_id):
     if(geekbench == True):
         run_geekbench(adb_id, xindus_db_conn, run_id, logsPath)
     if(lmbench == True):
-        run_lmbench(1024,'rd', xindus_db_conn, run_id, logsPath)
-    if(xindus_app == True):
-        run_xindusapp(adb_id, xindus_db_conn, run_id, logsPath)
+         run_lmbench(1024,'rd', xindus_db_conn, run_id, logsPath)
+    populate_tables(xindus_db_conn, adb_id)
     update_run_end_time()
     insert_run_data(xindus_db_conn, run_id)
     generateReportWithRunIds(xindus_db_conn, runids)
     generaterun_Report(xindus_db_conn)
-    sendReportThroughMail()
+    # sendReportThroughMail()
 
 def one_time_config():
     global mySQLUser, mySQLPassword, mySQLPort
@@ -203,6 +204,7 @@ def printCmdArgs():
     print("dbOneTimeConfig = ", dbOneTimeConfig)
     if (dbOneTimeConfig == '1'):
         print("DB Config required")
+        one_time_config()
     if (dbOneTimeConfig == '0'):
         print("DB Config is NOT required")
     print("emailID = ", emailId)
@@ -228,10 +230,11 @@ def main():
     global dbOneTimeConfig
     parseConfigFile()
     printCmdArgs()
-    if (dbOneTimeConfig == '1'):
+    if (dbOneTimeConfig == 1):
         print("DB Config required")
         one_time_config()
-    if (dbOneTimeConfig == '0'):
+        print("one time configuration done")
+    if (dbOneTimeConfig == 0):
         print("DB Config is NOT required")
     print("password = ", password)
     adb_id = get_adb_device_id()

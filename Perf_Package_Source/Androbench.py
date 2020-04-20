@@ -178,7 +178,7 @@ def run_androbench(adb_id, xindus_db_conn, run_id, screenshots_path):
         "platformName": "android",
         "appPackage": "com.andromeda.androbench2",
         "appActivity": "main",
-        "automationName": "uiautomator1"
+        "automationName": "UiAutomator2"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
     newVersionDevice = False
