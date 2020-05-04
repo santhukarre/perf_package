@@ -1,9 +1,10 @@
 from appium import webdriver
-from Run import wait_for_element,pull_screenshots,mergeWithFinalReport,convert
+from Run import wait_for_element,wait_for_element_quick, pull_screenshots,mergeWith_FinalReport,convert
 from tabulate import tabulate
 import pandas as pd
 from vincent.colors import brews
 import time
+import sys
 
 seq_read_result=""
 seq_write_result=""
@@ -13,7 +14,7 @@ sql_insert_result=""
 sql_update_result=""
 sql_delete_result=""
 
-def generateAndrobenchReport(xindus_db_conn,runids):
+def generate_Androbench_Report(xindus_db_conn,runids):
     report_file_name = '.\Androbench.xlsx'
     mycursor = xindus_db_conn.cursor()
     print(runids)
@@ -66,7 +67,7 @@ def generateAndrobenchReport(xindus_db_conn,runids):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 1)
+    # mergeWith_FinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 1)
     time.sleep(5)
 
 
@@ -123,7 +124,8 @@ def insert_androbench_result(xindus_db_conn, run_id):
     sql_insert_result = sql_insert_result.split(" ")[0]
     sql_update_result = sql_update_result.split(" ")[0]
     sql_delete_result = sql_delete_result.split(" ")[0]
-
+    print("Now inserting androbench results")
+    sys.stdout.flush()
     print('seq_read_result = ',seq_read_result)
     print('seq_write_result = ', seq_write_result)
     print('rand_read_result = ', rand_read_result)
@@ -151,16 +153,34 @@ def insert_androbench_result(xindus_db_conn, run_id):
 
 def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
     global seq_read_result, seq_write_result, rand_read_result,rand_write_result, sql_insert_result, sql_update_result, sql_delete_result
-
+    print("Inside get_androbench_results")
+    sys.stdout.flush()
     # Click on Results Button.
+    appium_web_driver.implicitly_wait(10)
     seq_read_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[1]/android.widget.LinearLayout/android.widget.TextView[2]')
+    print("after seq_read_results_element")
+    sys.stdout.flush()
     seq_write_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[2]/android.widget.LinearLayout/android.widget.TextView[2]')
+    print("after seq_write_results_element")
+    sys.stdout.flush()
     rand_read_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[3]/android.widget.LinearLayout/android.widget.TextView[2]')
+    print("after rand_read_results_element")
+    sys.stdout.flush()
     rand_write_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[4]/android.widget.LinearLayout/android.widget.TextView[2]')
+    print("after rand_write_results_element")
+    sys.stdout.flush()
     sql_insert_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[5]/android.widget.LinearLayout/android.widget.TextView[2]')
+    print("after sql_insert_results_element")
+    sys.stdout.flush()
     sql_update_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[6]/android.widget.LinearLayout/android.widget.TextView[2]')
+    print("after sql_update_results_element")
+    sys.stdout.flush()
     sql_delete_results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.LinearLayout[2]/android.widget.ListView/android.widget.FrameLayout[7]/android.widget.LinearLayout/android.widget.TextView[2]')
+    print("after sql_delete_results_element")
+    sys.stdout.flush()
 
+    print("After finding elements")
+    sys.stdout.flush()
 
     seq_read_result = seq_read_results_element.text
     seq_write_result = seq_write_results_element.text
@@ -169,16 +189,18 @@ def get_androdben_results(appium_web_driver, xindus_db_conn, run_id):
     sql_insert_result = sql_insert_results_element.text
     sql_update_result = sql_update_results_element.text
     sql_delete_result = sql_delete_results_element.text
-
+    print("After getting results")
+    sys.stdout.flush()
 
 def run_androbench(adb_id, xindus_db_conn, run_id, screenshots_path):
     print("Running Androbench on device with adb_id =", adb_id)
     desired_cap = {
-        "deviceName": adb_id,
+        "deviceName": "oneplus",
         "platformName": "android",
         "appPackage": "com.andromeda.androbench2",
         "appActivity": "main",
-        "automationName": "UiAutomator2"
+        "udid" : adb_id,
+        "automationName": "UiAutomator1"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
     newVersionDevice = False
@@ -191,29 +213,36 @@ def run_androbench(adb_id, xindus_db_conn, run_id, screenshots_path):
         warning_btn = appium_web_driver.find_element_by_id('android:id/button1')
         warning_btn.click()
 
-    appium_web_driver.implicitly_wait(10)
+    #appium_web_driver.implicitly_wait(10)
     # on Androbench Run All Benchmarks Button.
 
-    appium_web_driver.find_element_by_id('com.andromeda.androbench2:id/btnStartingBenchmarking').click()
-
+    #appium_web_driver.find_element_by_id('com.andromeda.androbench2:id/btnStartingBenchmarking').click()
+    time.sleep(5)
+    start_results_element = wait_for_element_quick(appium_web_driver, 50, 'com.andromeda.androbench2:id/btnStartingBenchmarking')
+    print("Before clicking start button element=", start_results_element)
+    sys.stdout.flush()
+    if(start_results_element != None):
+        print("Before clicking start button if condition element = ", start_results_element)
+        sys.stdout.flush()
+        start_results_element.click()
+        print("After clicking start button element = " , start_results_element)
+        sys.stdout.flush()
+    else:
+        print("Else condition")
+        sys.stdout.flush()
+    time.sleep(5)
+    print("Waiting for yes button")
+    sys.stdout.flush()
     appium_web_driver.implicitly_wait(10)
-
     # Click on Yes Button.
     appium_web_driver.find_element_by_id('android:id/button1').click()
 
     # Click on Cancel Button for 'Do you want to send results to server for research purpose'
-    send_results_element = wait_for_element(appium_web_driver,150,'android:id/button2')
+    send_results_element = wait_for_element_quick(appium_web_driver,2000,'android:id/button2')
     send_results_element.click()
-
-    # Click on Results Button.
-    #appium_web_driver.implicitly_wait(10)
-    #results_element = appium_web_driver.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.TabHost/android.widget.LinearLayout/android.widget.TabWidget/android.widget.LinearLayout[2]')
-    #results_element.click()
-    #Duration = END_TIME - START_TIME
-    #print(Duration)
-
+    print("done with androbench, now getting androbench results")
+    sys.stdout.flush()
     get_androdben_results(appium_web_driver, xindus_db_conn, run_id)
     insert_androbench_result(xindus_db_conn, run_id)
     store_androbench_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "Androbench", screenshots_path)
-    #generateAndrobenchReport(xindus_db_conn)

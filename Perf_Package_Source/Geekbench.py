@@ -1,13 +1,13 @@
 from appium import webdriver
 import time
-from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath,mergeWithFinalReport,convert
+from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_element_xpath,mergeWith_FinalReport,convert
 import pandas as pd
 from vincent.colors import brews
 Single_core_element = ""
 Multi_core_element= ""
 Opencl_score_element= ""
 
-def generateGeekbenchReport(xindus_db_conn,runids):
+def generate_Geekbench_Report(xindus_db_conn,runids):
     mycursor = xindus_db_conn.cursor()
     print(runids)
     run_ids = convert(runids)
@@ -55,7 +55,7 @@ def generateGeekbenchReport(xindus_db_conn,runids):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 4)
+    mergeWith_FinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 4)
 
 
 

@@ -3,7 +3,7 @@ import io
 from Run import pull_screenshots,report_file_name
 import pandas as pd
 from vincent.colors import brews
-from Run import mergeWithFinalReport
+from Run import mergeWith_FinalReport
 
 report_file_name = '.\LMBench.xlsx'
 
@@ -46,9 +46,9 @@ def insert_lmbench_result(xindus_db_conn, run_id):
 
     result_id = get_lmbench_result_id(xindus_db_conn)
 
-    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, ID, RESULT_ID) VALUES (%s,%s,%s)"
+    benchmark_rslt_sql = "INSERT INTO BENCHMARK_RESULT(RUN_ID, TOOL_NAME, RESULT_ID) VALUES (%s,%s,%s)"
     benchmark_rslt_val = [
-        (run_id, '5', result_id),
+        (run_id, 'LMBENCH', result_id),
     ]
     xindus_db_cursor.executemany(benchmark_rslt_sql, benchmark_rslt_val)
     xindus_db_conn.commit()
@@ -102,11 +102,11 @@ def generateLMbenchReport(xindus_db_conn):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 5)
+    mergeWith_FinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 5)
 
 def run_lmbench(size,oprtn,xindus_db_conn, run_id, screenShotsPath):
     global bytes_transferred, ddr_bw
-    command = 'adb shell /data/bw_mem ' + str(size) + ' ' + oprtn
+    command = 'adb -s 7a9d2cc6 shell /data/local/tmp/bw_mem ' + str(size) + ' ' + oprtn
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (stdout, stderr) = p.communicate()
     print("standard output :", stderr)

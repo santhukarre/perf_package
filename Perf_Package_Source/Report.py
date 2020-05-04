@@ -12,7 +12,7 @@ sender_email = ""
 receiver_email = ""
 password = ""
 
-def sendReportThroughMail():
+def sendReport_ThroughMail():
     global report_file_name
     subject = "An email with attachment from Python"
     body = "This is an email with attachment sent from Python"

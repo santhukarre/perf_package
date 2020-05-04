@@ -1,13 +1,14 @@
 from appium import webdriver
 import subprocess
 import io
-from Run import wait_for_element,pull_screenshots, wait_for_element_quick, wait_for_element_xpath,mergeWithFinalReport
+from Run import wait_for_element,pull_screenshots, wait_for_element_quick, wait_for_element_xpath,mergeWith_FinalReport
 from tabulate import tabulate
 import pandas as pd
 from vincent.colors import brews
 import xlsxwriter
-
+import configparser
 logsPath = ""
+
 def populate_xindusapp_result(xindus_db_conn,screenShotsPath):
     xindus_db_cursor = xindus_db_conn.cursor()
     cmd = "adb pull /sdcard/max_freq_logging.txt" + " " + screenShotsPath
@@ -73,7 +74,7 @@ def populate_xindusapp_config(xindus_db_conn,screenShotsPath):
             xindus_db_cursor.executemany(xindusapp_sql, xindusapp_val)
             xindus_db_conn.commit()
 
-def generateXindusAppReport(xindus_db_conn):
+def generate_XindusApp_Report(xindus_db_conn):
     report_file_name = '.\XindusApp.xlsx'
     mycursor = xindus_db_conn.cursor()
    # print(runids)
@@ -132,17 +133,18 @@ def generateXindusAppReport(xindus_db_conn):
     worksheet.write_column('C2', data[2])
 
     chart1 = workbook.add_chart({'type': 'line'})
+
     chart1.add_series({
-        'name': ['Sheet1', 0, 1],
-        'categories': ['Sheet1', 1, 0, 9, 0],
-        'values': ['Sheet1', 1, 1, 9, 1],
+          'name': ['Sheet1', 0, 1],
+          'categories': ['Sheet1', 32, 0, 61, 0],
+          'values': ['Sheet1', 32, 1, 61, 1],
     })
     chart1.add_series({
-        'name': ['Sheet1', 0, 2],
-        'categories': ['Sheet1', 1, 0, 9, 0],
-        'values': ['Sheet1', 1, 2, 9, 2],
-        'y2_axis':    True,
-})
+          'name': ['Sheet1', 0, 2],
+          'categories': ['Sheet1', 32, 0, 61, 0],
+          'values': ['Sheet1', 32, 2, 61, 2],
+          'y2_axis':    True,
+    })
 
     chart1.set_title({'name': 'Two_linecharts'})
     chart1.set_x_axis({'name': 'Buffer_Size'})
@@ -151,9 +153,9 @@ def generateXindusAppReport(xindus_db_conn):
     chart1.set_style(11)
     worksheet.insert_chart('D2', chart1, {'x_offset': 25, 'y_offset': 10})
     workbook.close()
-    mergeWithFinalReport('Xindus_App.xlsx', '.\\Xindus_PerfReport.xlsx', 1)
+    # mergeWith_FinalReport('Xindus_App.xlsx', '.\\Xindus_PerfReport.xlsx', 1)
 
-def generateXindusAppReport_Freq(xindus_db_conn):
+def generate_XindusApp_Report_Freq(xindus_db_conn):
     report_file_name = '.\XindusApp_Freq.xlsx'
     mycursor = xindus_db_conn.cursor()
    # print(runids)
@@ -193,42 +195,72 @@ def generateXindusAppReport_Freq(xindus_db_conn):
     worksheet.write_column('A2', data[0])
     worksheet.write_column('B2', data[1])
     chart1 = workbook.add_chart({'type': 'line'})
+
+
     chart1.add_series({
-        'name': ['Sheet1', 0, 1],
-        'categories': ['Sheet1', 1, 0, 9, 0],
-        'values': ['Sheet1', 1, 1, 9, 1],
+            'name': ['Sheet1', 0, 1],
+            'categories': ['Sheet1', 32, 0, 61, 0],
+            'values': ['Sheet1', 32, 1, 61, 1],
     })
     chart1.add_series({
-        'name': ['Sheet1', 0, 2],
-        'categories': ['Sheet1', 1, 0, 9, 0],
-        'values': ['Sheet1', 1, 2, 9, 2],
-})
+            'name': ['Sheet1', 0, 2],
+            'categories': ['Sheet1', 32, 0, 61, 0],
+            'values': ['Sheet1', 32, 2, 61, 2],
+            'y2_axis': True,
+    })
+
     chart1.set_title({'name': 'Frequency_Residency'})
     chart1.set_x_axis({'name': 'Timestamp'})
     chart1.set_y_axis({'name': 'Frequency'})
     chart1.set_style(11)
     worksheet.insert_chart('D2', chart1, {'x_offset': 25, 'y_offset': 10})
     workbook.close()
-    mergeWithFinalReport('XindusApp_Freq.xlsx', '.\\Xindus_PerfReport.xlsx', 1)
+    # mergeWith_FinalReport('XindusApp_Freq.xlsx', '.\\Xindus_PerfReport.xlsx', 1)
 
+def pull_xindus_console_configs():
+    pull_xindus_console_config_cmd = "adb shell pull xindus_console_config.ini"
+    p = subprocess.Popen(pull_xindus_console_config_cmd, stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
 
-
-def run_xindusapp(adb_id, xindus_db_conn, run_id,screenShotsPath):
+def run_xindusapp(adb_id, xindus_db_conn, run_id,screenShotsPath,xindusAppThreads,xindusAppIterations,xindusAppBuffers,xindusAppDDROnly,xindusAppLogLevel,xindusAppFreeqResidency):
     print("Running xindusapp on device with adb_id =", adb_id)
+
     desired_cap = {
-        "deviceName": adb_id,
+        "deviceName": "one plus",
         "platformName": "android",
         "appPackage": "com.example.myapplication",
         "appActivity": "com.example.myapplication.MainActivity",
+        "udid": adb_id,
         "automationName": "UiAutomator2"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
     appium_web_driver.implicitly_wait(10)
-    appium_web_driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button').click()
-    start_button_element = wait_for_element_quick(appium_web_driver, 50, 'com.example.myapplication:id/button')
-    start_button_element.click()
-    results_button_element = wait_for_element_quick(appium_web_driver, 200, 'com.example.myapplication:id/results')
+    permission_element = wait_for_element_quick(appium_web_driver,20, 'com.android.packageinstaller:id/permission_allow_button')
+    if(permission_element != None):
+      permission_element.click()
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/numOfThreads').clear()
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/numOfThreads').set_value(xindusAppThreads)
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/numOfIterations').clear()
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/numOfIterations').set_value(xindusAppIterations)
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/bufSizes').clear()
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/bufSizes').set_value(xindusAppBuffers)
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/ddrOnly').clear()
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/ddrOnly').set_value(xindusAppDDROnly)
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/logLevel').clear()
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/logLevel').set_value(xindusAppLogLevel)
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/freqResidency').clear()
+    appium_web_driver.find_element_by_id('com.example.myapplication:id/freqResidency').set_value(xindusAppFreeqResidency)
+
+    start_button_element = wait_for_element_quick(appium_web_driver, 50, 'com.example.myapplication:id/start')
+    # start_button_element = wait_for_element_xpath(appium_web_driver, 50, '/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.view.ViewGroup/android.widget.FrameLayout[2]/android.widget.RelativeLayout/android.widget.Button[1]')
+
+    if(start_button_element != None):
+      start_button_element.click()
+    results_button_element = wait_for_element_quick(appium_web_driver, 200, 'com.example.myapplication:id/xindusResults')
     results_button_element.click()
+    #results_button_element = wait_for_element_xpath(appium_web_driver, 200, '/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.RelativeLayout/android.widget.Button')
+
     pull_screenshots(run_id, "Xindus_APP",screenShotsPath)
     populate_xindusapp_result(xindus_db_conn, screenShotsPath)
     populate_xindusapp_config(xindus_db_conn, screenShotsPath)

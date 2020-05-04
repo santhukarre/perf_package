@@ -32,7 +32,7 @@ def create_tables(mySQLUser, mySQLPort, mySQLPassword):
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS ANDROBENCH_RESULT(RESULT_ID INT,SEQ_READ INT,SEQ_WRITE INT,RAND_READ INT,RAND_WRITE INT,SQL_INSERT INT,SQL_UPDATE INT,SQL_DELETE INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS ANTUTU_RESULT(RESULT_ID INT,ANTUTU_TOTAL_SCORE INT,ANTUTU_CPU_SCORE INT,ANTUTU_GPU_SCORE INT,ANTUTU_MEMORY_SCORE INT,ANTUTU_UX_SCORE INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS GEEKBENCH_RESULT(RESULT_ID INT,SINGLE_CORE_ELEMENT INT,MULTI_CORE_ELEMENT INT,OPENCL_SCORE_ELEMENT INT)")
-    xindus_db_cursor.execute("Create Table  IF NOT EXISTS LMBENCH_RESULT(RESULT_ID INT, BYTES_Transferred FLOAT,DDR_BW INT)")
+    xindus_db_cursor.execute("Create Table  IF NOT EXISTS LMBENCH_RESULT(RESULT_ID INT, BYTES_Transferred FLOAT,DDR_BW FLOAT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS THREEDMARK_RESULT(RESULT_ID INT,SLINGOPENGL_OVERALL INT, SLINGOPENGL_GRAPHICS INT, SLINGOPENGL_PHYSICS INT, SLING_OVERALL INT, SLING_GRAPHICS INT, SLING_PHYSICS INT,SLINGSHOT_OVERALL INT,SLINGSHOT_GRAPHICS INT,SLINGSHOT_PHYSICS INT,API_OPENGL INT,API_VULKAN INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS XINDUSAPP_RESULT(TIMESTAMP VARCHAR(255),OPERATION INT,BUF_SIZE INT,DDR_MAX_FREQ INT,THROUGHPUT INT)")
     xindus_db_cursor.execute("Create Table  IF NOT EXISTS XINDUSAPP_CONFIG(RESULT_ID INT,THREADS INT,ITERATIONS INT,CACHE INT,LOGLEVEL INT)")
@@ -157,13 +157,16 @@ def populate_device(xindus_db_conn, adb_id):
     ]
     xindus_db_cursor.executemany(device_sql,device_val)
     xindus_db_conn.commit()
-def populate_tables(xindus_db_conn,adb_id):
+
+
+
+def populate_tables(xindus_db_conn,adb_id,run_id):
     print("Inside populate_tables")
-    # populate_tools(xindus_db_conn)
-    # populate_device(xindus_db_conn,adb_id)
-    #populate_Subsystems(xindus_db_conn)
-    #insert_runid_testingseq(xindus_db_conn,run_id)
-    #insert_Tetsingseq_data(xindus_db_conn,run_id)
+    populate_tools(xindus_db_conn)
+    populate_device(xindus_db_conn,adb_id)
+    populate_Subsystems(xindus_db_conn)
+    insert_runid_testingseq(xindus_db_conn,run_id)
+    insert_Tetsingseq_data(xindus_db_conn,run_id)
 
 
 def init_db(mySQLUser, mySQLPort, mySQLPassword):

@@ -3,7 +3,7 @@ from Run import pull_screenshots,report_file_name,wait_for_element,wait_for_elem
 import time
 import pandas as pd
 from vincent.colors import brews
-from Run import mergeWithFinalReport
+from Run import mergeWith_FinalReport
 
 SlingopenGL_overall=""
 SlingopenGL_physics=""
@@ -19,7 +19,7 @@ API_VULKAN=""
 
 def remove(string):
     return "".join(string.split())
-def generateThreeDmarkReport(xindus_db_conn,runids):
+def generate_ThreeDmark_Report(xindus_db_conn,runids):
     mycursor = xindus_db_conn.cursor()
     print(runids)
     run_ids = convert(runids)
@@ -67,7 +67,7 @@ def generateThreeDmarkReport(xindus_db_conn,runids):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 3)
+    # mergeWith_FinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 3)
     time.sleep(5)
 
 def store_threedmark_result(xindus_db_conn, result_id_list):
@@ -142,14 +142,15 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     global SlingopenGL_overall,SlingopenGL_physics,SlingopenGL_graphics,Sling_overall,Sling_graphics,Sling_physics,Slingshot_overall,Slingshot_graphics,Slingshot_physics,API_OPENGL,API_VULKAN
     print("Running Threedmark on device with adb_id =", adb_id)
     desired_cap = {
-        "deviceName": adb_id,
+        "deviceName": "oneplus",
         "platformName": "android",
         "appPackage": "com.futuremark.dmandroid.application",
         "appActivity": "com.futuremark.flamenco.ui.splash.SplashPageActivity",
+        "udid"  : adb_id,
         "noReset": True,
         "connectionRetryTimeout": 10000,
         "connectionRetryCount": 3,
-        "automationName": "uiautomator1",
+        "automationName": "UiAutomator1",
         "newCommandTimeout": 200000
     }
     print("adb_device_id = ", adb_id)
@@ -251,6 +252,6 @@ def run_3dmark(adb_id,xindus_db_conn, run_id, screenShotsPath):
     insert_threedmark_result(xindus_db_conn, run_id)
     store_threedmark_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "3dmark_API",screenShotsPath)
-    #generateThreeDmarkReport(xindus_db_conn)
+    #generate_ThreeDmark_Report(xindus_db_conn)
 
 

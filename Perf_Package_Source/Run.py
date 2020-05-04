@@ -2,6 +2,8 @@ import subprocess
 import datetime
 import time
 import xlwings as xw
+import sys
+
 report_file_name = "Xindus_PerfReport.xlsx"
 START_DATE = ""
 START_TIME = ""
@@ -13,7 +15,7 @@ from db_interface import getDeviceName
 from tabulate import tabulate
 def convert(list):
     return tuple(list)
-def mergeWithFinalReport(src_path, dest_path, sheet_num):
+def mergeWith_FinalReport(src_path, dest_path, sheet_num):
     wb1 = xw.Book(src_path)
     wb2 = xw.Book(dest_path)
 
@@ -43,15 +45,22 @@ def wait_for_element_quick(appium_web_driver, secs, element_id):
    print("Wait for element Total iterations  = ", iterations, "element_id = ", element_id)
    for i in range(1, iterations):
         print("iteration no. = ", i, "total iterations = ", iterations)
+        sys.stdout.flush()
+        time.sleep(2)
         element_found = is_element_found(appium_web_driver, each_iteration_sleep, element_id)
         if(element_found == True):
             global  found_element_id
             found_element_id = appium_web_driver.find_element_by_id(element_id)
-            print("Found Element")
+            print("Found Element element = ", found_element_id)
+            sys.stdout.flush()
             return found_element_id
         if(element_found == False):
             print("Sleeping explicilty for 5 seconds")
+            sys.stdout.flush()
             time.sleep(5)
+            print("5 Seconds timedout")
+            sys.stdout.flush()
+
 
    return None
 
@@ -174,7 +183,7 @@ def generaterun_Report(xindus_db_conn):
     print(tabulate(data, headers=['RUN_ID','RUN_COMMENTS','DEVICE_ID','NAME','START_DATE','START_TIME','END_DATE','END_TIME','MODE'], tablefmt='psql'))
 
 def pull_screenshots(run_id, fileName, dest):
-    screenshot_cmd = "adb shell screencap -p /sdcard/" + fileName + "_" + str(run_id) + ".png"
+    screenshot_cmd = "adb shell screencap -p /sdcard/xindus_app" + fileName + "_" + str(run_id) + ".png"
     p = subprocess.Popen(screenshot_cmd, stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
     p_status = p.wait()

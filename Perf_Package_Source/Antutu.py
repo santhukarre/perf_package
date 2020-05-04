@@ -1,9 +1,10 @@
 from appium import webdriver
 import pandas as pd
 from vincent.colors import brews
-from Run import wait_for_element, pull_screenshots,mergeWithFinalReport,convert
+from Run import wait_for_element, wait_for_element_quick, pull_screenshots,mergeWith_FinalReport,convert
 import openpyxl
 import time
+import sys
 
 Antutu_total_score = ""
 Antutu_cpu_score = ""
@@ -11,7 +12,7 @@ Antutu_mem_score = ""
 Antutu_gpu_score = ""
 Antutu_ux_score = ""
 
-def generateAntutuReport(xindus_db_conn,runids):
+def generate_Antutu_Report(xindus_db_conn,runids):
     mycursor = xindus_db_conn.cursor()
     print(runids)
     run_ids = convert(runids)
@@ -59,7 +60,7 @@ def generateAntutuReport(xindus_db_conn,runids):
     worksheet.insert_chart('H2', chart)
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    mergeWithFinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 2)
+    # mergeWith_FinalReport(report_file_name, '.\\Xindus_PerfReport.xlsx', 2)
     time.sleep(5)
 
 def store_antutu_result(xindus_db_conn, result_id_list):
@@ -126,31 +127,40 @@ def run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath):
     global Antutu_total_score,Antutu_cpu_score, Antutu_gpu_score,Antutu_memory_score, Antutu_ux_score
     print("Running Antutu on device with adb_id =", adb_id)
     desired_cap = {
-        "deviceName": adb_id,
+        "deviceName": "oneplus",
         "platformName": "android",
         "appPackage": "com.antutu.ABenchMark",
         "appActivity": "com.antutu.ABenchMark.ABenchMarkStart",
+        "udid" : adb_id,
         "noReset": True,
         "newCommandTimeout":800000,
         "automationName": "UiAutomator1"
     }
     appium_web_driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_cap)
-    permission_element = wait_for_element(appium_web_driver, 50, 'com.android.packageinstaller:id/permission_allow_button')
+    permission_element = wait_for_element_quick(appium_web_driver, 30, 'com.android.packageinstaller:id/permission_allow_button')
 
     if(permission_element != None):
         print("it means it is appium web element")
+        sys.stdout.flush()
         permission_element.click()
         appium_web_driver.implicitly_wait(10)
         appium_web_driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button').click()
         appium_web_driver.implicitly_wait(10)
         appium_web_driver.find_element_by_id('com.android.packageinstaller:id/permission_allow_button').click()
-    main_test_start_element = wait_for_element(appium_web_driver, 50,'com.antutu.ABenchMark:id/main_test_start_title')
+    print("Finding start element")
+    main_test_start_element = wait_for_element_quick(appium_web_driver, 30,'com.antutu.ABenchMark:id/main_test_start_title')
 
     if(main_test_start_element != None):
+        print("Found start element")
         main_test_start_element.click()
     else:
-        appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/main_test_finish_retest').click()
-    antutu_total_score_element=wait_for_element(appium_web_driver,800,'com.antutu.ABenchMark:id/textViewTotalScore')
+        main_test_start_element = wait_for_element_quick(appium_web_driver, 20,
+                                                         'com.antutu.ABenchMark:id/main_test_finish_retest')
+        if (main_test_start_element != None):
+            print("Found start element")
+            main_test_start_element.click()
+
+    antutu_total_score_element=wait_for_element(appium_web_driver,1600,'com.antutu.ABenchMark:id/textViewTotalScore')
     #antutu_total_score_element=appium_web_driver.find_element_by_id('com.antutu.ABenchMark:id/textViewTotalScore')
     Antutu_total_score = antutu_total_score_element.text
     print('Antutu Total Score :', Antutu_total_score)
@@ -181,4 +191,4 @@ def run_antutu(adb_id,xindus_db_conn, run_id, screenShotsPath):
     insert_antutu_result(xindus_db_conn, run_id)
     store_antutu_result(xindus_db_conn, [1, 2])
     pull_screenshots(run_id, "Antutu",screenShotsPath)
-    #generateAntutuReport(xindus_db_conn)
+    #generate_Antutu_Report(xindus_db_conn)
